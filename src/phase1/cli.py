@@ -77,9 +77,9 @@ class TodoCLI:
 
     def view_tasks(self):
         """Handle viewing all tasks with enhanced UI"""
-        print(f"\n{Styles.SUBHEADER}{'-' * 30}{Colors.RESET}")
-        print(f"{Styles.SUBHEADER}VIEW TASKS{Colors.RESET}")
-        print(f"{Styles.SUBHEADER}{'-' * 30}{Colors.RESET}")
+        print(f"\n{Styles.SUBHEADER}{'=' * 40}{Colors.RESET}")
+        print(f"{Styles.SUBHEADER}{'TODO LIST':^40}{Colors.RESET}")
+        print(f"{Styles.SUBHEADER}{'=' * 40}{Colors.RESET}")
 
         if not self.task_manager.has_tasks():
             print(colored("No tasks found. Your todo list is empty.", Colors.YELLOW))
@@ -87,18 +87,25 @@ class TodoCLI:
 
         tasks = self.task_manager.list_tasks()
         print(colored(f"Total tasks: {len(tasks)}", Colors.CYAN))
-        print(colored("-" * 30, Colors.DIM))
+        print(colored("-" * 50, Colors.DIM))
 
         for i, task in enumerate(tasks, 1):
-            # Color the task based on completion status
-            if task.completed:
-                print(colored(f"{task}", Colors.GREEN))
-                if task.description:
-                    print(colored(f"     Description: {task.description}", Colors.DIM))
-            else:
-                print(colored(f"{task}", Colors.WHITE))
-                if task.description:
-                    print(colored(f"     Description: {task.description}", Colors.DIM))
+            # Show status indicator and task details
+            status_indicator = "X" if task.completed else "O"
+            status_color = Colors.GREEN if task.completed else Colors.RED
+            id_text = f"[{task.id}]"
+
+            # Print task with status indicator, ID and title
+            task_line = f"{colored(status_indicator, status_color)} {colored(id_text, Colors.CYAN)} {task.title}"
+            print(task_line)
+
+            # Print description if it exists
+            if task.description:
+                print(colored(f"    {task.description}", Colors.DIM))
+
+            # Print separator line between tasks (except for the last one)
+            if i < len(tasks):
+                print(colored("-" * 40, Colors.DIM))
 
     def update_task(self):
         """Handle updating an existing task with enhanced UI"""
