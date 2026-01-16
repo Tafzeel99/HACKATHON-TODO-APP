@@ -53,3 +53,6 @@ The application follows clean architecture principles:
 - `src/phase1/cli.py`: Provides the command-line interface
 - `src/phase1/main.py`: Application entry point
 - `src/main.py`: Top-level entry point that delegates to phase1
+
+
+

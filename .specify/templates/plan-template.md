@@ -31,7 +31,35 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+### Principle 1: Spec-Driven Development (SDD) - MANDATORY
+- [ ] All development follows: Spec → Plan → Tasks → Implement sequence
+- [ ] No code implementation without approved specification
+- [ ] Every implementation references a Task ID
+- [ ] Claude Code generates 100% of code (no manual coding)
+- [ ] Specifications refined until correct output achieved
+
+### Principle 2: AI-Native Architecture
+- [ ] Engineer role is System Architect (not code writer)
+- [ ] Claude Code used as primary development tool
+- [ ] Reusable Intelligence (Skills, Agents) actively used
+- [ ] Agentic Dev Stack: AGENTS.md + Spec-KitPlus + Claude Code
+
+### Principle 3: Progressive Complexity
+- [ ] Sequential phase completion (no skipping)
+- [ ] Current phase builds on previous foundation
+- [ ] Architecture follows: CLI → Web → AI Chatbot → K8s → Cloud-Native
+
+### Principle 4: Cloud-Native First
+- [ ] Stateless design (from Phase III onwards)
+- [ ] Containerization ready (mandatory from Phase IV)
+- [ ] Event-driven patterns considered (Phase V)
+- [ ] Horizontal scalability designed in
+
+### Principle 5: Production Quality
+- [ ] Clean code principles enforced
+- [ ] Security best practices followed (see Security Standards)
+- [ ] Comprehensive error handling implemented
+- [ ] Full documentation provided
 
 ## Project Structure
 
