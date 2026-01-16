@@ -240,6 +240,32 @@ With multiple developers:
 
 ---
 
+## Constitution Compliance Checks
+
+### Principle 1: Spec-Driven Development (SDD) - MANDATORY
+- [ ] All tasks follow: Spec → Plan → Tasks → Implement sequence
+- [ ] Every task references a Task ID
+- [ ] Claude Code generates 100% of code (no manual coding)
+
+### Principle 2: AI-Native Architecture
+- [ ] Tasks utilize Reusable Intelligence (Skills, Agents)
+- [ ] Agentic Dev Stack: AGENTS.md + Spec-KitPlus + Claude Code
+
+### Principle 3: Progressive Complexity
+- [ ] Tasks follow sequential phase completion (no skipping)
+- [ ] Each task builds on previous foundation
+
+### Principle 4: Cloud-Native First
+- [ ] Stateless design (from Phase III onwards)
+- [ ] Containerization considerations (from Phase IV onwards)
+- [ ] Event-driven patterns (Phase V)
+
+### Principle 5: Production Quality
+- [ ] Clean code principles in all implementations
+- [ ] Security best practices followed
+- [ ] Error handling comprehensive
+- [ ] Documentation complete
+
 ## Notes
 
 - [P] tasks = different files, no dependencies

@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(sp.phr)",
+      "mcp__context7__query-docs",
+      "mcp__context7__resolve-library-id",
+      "Bash(dir \"D:\\\\IT CLASSES pc\\\\HACKATHON-TODO-APP\\\\.claude\\\\skills\\\\fastapi-crud-generator\" /s)",
+      "Bash(dir \"D:\\\\IT CLASSES pc\\\\HACKATHON-TODO-APP\\\\.claude\\\\skills\\\\sqlmodel-schema-builder\" /s)",
+      "Bash(dir \"D:\\\\IT CLASSES pc\\\\HACKATHON-TODO-APP\\\\.claude\\\\skills\\\\pydantic-validator\" /s)",
+      "Bash(dir \"D:\\\\IT CLASSES pc\\\\HACKATHON-TODO-APP\\\\.claude\\\\skills\\\\pydantic-validator\\\\references\")",
+      "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File \".specify/scripts/powershell/check-prerequisites.ps1\" -Json)",
+      "Bash(powershell -ExecutionPolicy Bypass -File:*)",
+      "Bash(pip install:*)"
+    ]
+  }
+}

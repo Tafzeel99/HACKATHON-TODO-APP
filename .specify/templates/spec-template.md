@@ -113,3 +113,12 @@
 - **SC-002**: [Measurable metric, e.g., "System handles 1000 concurrent users without degradation"]
 - **SC-003**: [User satisfaction metric, e.g., "90% of users successfully complete primary task on first attempt"]
 - **SC-004**: [Business metric, e.g., "Reduce support tickets related to [X] by 50%"]
+
+### Constitution Compliance
+
+- **CC-001**: Spec follows Spec-Driven Development (SDD): Spec → Plan → Tasks → Implement (Principle 1)
+- **CC-002**: Claude Code generates 100% of code, no manual coding permitted (Principle 1)
+- **CC-003**: Implementation will utilize Reusable Intelligence: Skills, Agents, Agentic Dev Stack (Principle 2)
+- **CC-004**: Sequential phase completion, building on previous foundation (Principle 3)
+- **CC-005**: Cloud-Native design: stateless, containerization-ready, event-driven patterns (Principle 4)
+- **CC-006**: Production Quality: clean code, security best practices, error handling, documentation (Principle 5)
