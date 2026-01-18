@@ -1,6 +1,12 @@
 """Pydantic schemas package."""
 
-from src.schemas.task import TaskCreate, TaskListResponse, TaskResponse, TaskUpdate
+from src.schemas.task import (
+    TagsResponse,
+    TaskCreate,
+    TaskListResponse,
+    TaskResponse,
+    TaskUpdate,
+)
 from src.schemas.user import AuthResponse, TokenResponse, UserCreate, UserLogin, UserResponse
 
 __all__ = [
@@ -13,4 +19,5 @@ __all__ = [
     "TaskUpdate",
     "TaskResponse",
     "TaskListResponse",
+    "TagsResponse",
 ]

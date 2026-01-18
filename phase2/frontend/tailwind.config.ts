@@ -40,6 +40,14 @@ export default {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
         },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -55,6 +63,17 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      boxShadow: {
+        glow: "0 0 20px -5px hsl(var(--primary) / 0.3)",
+        "glow-sm": "0 0 10px -3px hsl(var(--primary) / 0.2)",
+      },
+      animation: {
+        "fade-in": "fade-in 0.3s ease-out forwards",
+        "fade-up": "fade-up 0.4s ease-out forwards",
+        "scale-in": "scale-in 0.2s ease-out forwards",
+        "slide-in-right": "slide-in-right 0.3s ease-out forwards",
+        "check-pop": "check-pop 0.3s ease-out forwards",
       },
     },
   },

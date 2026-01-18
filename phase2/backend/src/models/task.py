@@ -2,8 +2,31 @@
 
 import uuid
 from datetime import datetime
+from enum import Enum
+from typing import TYPE_CHECKING
 
-from sqlmodel import Field, SQLModel
+from sqlmodel import Column, Field, SQLModel
+from sqlalchemy import JSON
+
+if TYPE_CHECKING:
+    pass
+
+
+class Priority(str, Enum):
+    """Task priority levels."""
+
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+
+
+class RecurrencePattern(str, Enum):
+    """Task recurrence patterns."""
+
+    NONE = "none"
+    DAILY = "daily"
+    WEEKLY = "weekly"
+    MONTHLY = "monthly"
 
 
 class Task(SQLModel, table=True):
@@ -47,4 +70,46 @@ class Task(SQLModel, table=True):
         default_factory=datetime.utcnow,
         nullable=False,
         description="Last modification timestamp",
+    )
+
+    # Intermediate features
+    priority: str = Field(
+        default="medium",
+        nullable=False,
+        index=True,
+        description="Task priority (low, medium, high)",
+    )
+    tags: list[str] = Field(
+        default_factory=list,
+        sa_column=Column(JSON, nullable=False, server_default="[]"),
+        description="Task tags (max 10, max 30 chars each)",
+    )
+
+    # Advanced features
+    due_date: datetime | None = Field(
+        default=None,
+        nullable=True,
+        index=True,
+        description="Task due date",
+    )
+    recurrence_pattern: str = Field(
+        default="none",
+        nullable=False,
+        description="Recurrence pattern (none, daily, weekly, monthly)",
+    )
+    recurrence_end_date: datetime | None = Field(
+        default=None,
+        nullable=True,
+        description="End date for recurrence",
+    )
+    parent_task_id: uuid.UUID | None = Field(
+        default=None,
+        foreign_key="tasks.id",
+        nullable=True,
+        description="Parent task ID for recurring task chain",
+    )
+    reminder_at: datetime | None = Field(
+        default=None,
+        nullable=True,
+        description="Reminder datetime",
     )
