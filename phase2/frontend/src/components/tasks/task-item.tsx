@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Trash2, Edit2, X, Clock, Calendar, Repeat, Bell, AlertCircle } from "lucide-react";
+import { Check, Trash2, Edit2, X, Calendar, Repeat, Bell, AlertCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { cn, formatRelativeTime } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { taskApi } from "@/lib/api";
 import { toast } from "@/hooks/use-toast";
 import { PriorityBadge } from "./priority-badge";
@@ -28,21 +28,28 @@ function getTagColor(tag: string): string {
 function formatDueDate(dateString: string): string {
   const date = new Date(dateString);
   const now = new Date();
-  const diff = date.getTime() - now.getTime();
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-  if (days === 0) {
-    return `Today at ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
-  } else if (days === 1) {
-    return `Tomorrow at ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
-  } else if (days === -1) {
-    return "Yesterday";
-  } else if (days < 0) {
-    return `${Math.abs(days)} days overdue`;
-  } else if (days < 7) {
-    return date.toLocaleDateString([], { weekday: "long" });
+  // Compare calendar days in local timezone (not raw time difference)
+  const dateDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const nowDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const daysDiff = Math.round((dateDay.getTime() - nowDay.getTime()) / (1000 * 60 * 60 * 24));
+
+  // Check if time was set (not midnight)
+  const hasTime = date.getHours() !== 0 || date.getMinutes() !== 0;
+  const timeStr = hasTime ? ` at ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : "";
+
+  if (daysDiff === 0) {
+    return `Today${timeStr || " at " + date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+  } else if (daysDiff === 1) {
+    return `Tomorrow${timeStr || " at " + date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+  } else if (daysDiff === -1) {
+    return `Yesterday${timeStr}`;
+  } else if (daysDiff < 0) {
+    return `${Math.abs(daysDiff)} days overdue${timeStr}`;
+  } else if (daysDiff < 7) {
+    return `${date.toLocaleDateString([], { weekday: "long" })}${timeStr}`;
   } else {
-    return date.toLocaleDateString([], { month: "short", day: "numeric" });
+    return `${date.toLocaleDateString([], { month: "short", day: "numeric" })}${timeStr}`;
   }
 }
 
@@ -284,12 +291,6 @@ export function TaskItem({ task, onUpdate, onDelete }: TaskItemProps) {
                   <span>Reminder set</span>
                 </div>
               )}
-
-              {/* Created time */}
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Clock className="h-3 w-3" />
-                <span>{formatRelativeTime(task.created_at)}</span>
-              </div>
 
               {/* Completed badge */}
               {task.completed && (

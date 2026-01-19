@@ -23,7 +23,7 @@ export default function LoginPage() {
             <CheckSquare className="h-7 w-7 text-white" />
           </div>
           <h1 className="text-2xl font-bold">
-            <span className="text-gradient">TaskFlow</span>
+            <span className="text-gradient">todoX</span>
           </h1>
         </div>
 
@@ -43,7 +43,7 @@ export default function LoginPage() {
               </div>
               <div className="relative flex justify-center text-xs uppercase">
                 <span className="bg-card px-2 text-muted-foreground">
-                  New to TaskFlow?
+                  New to todoX?
                 </span>
               </div>
             </div>
@@ -60,7 +60,7 @@ export default function LoginPage() {
 
         {/* Footer */}
         <p className="text-center text-xs text-muted-foreground">
-          Phase II - Hackathon Todo App
+          Your ultimate task management solution.
         </p>
       </div>
     </main>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { LogOut, CheckSquare } from "lucide-react";
+import { LogOut, CheckSquare, Github, Linkedin, Instagram } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -45,7 +45,7 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-lg supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between">
@@ -56,7 +56,7 @@ export default function DashboardLayout({
             </div>
             <div className="flex flex-col">
               <h1 className="text-lg font-bold tracking-tight">
-                <span className="text-gradient">TaskFlow</span>
+                <span className="text-gradient">todoX</span>
               </h1>
               <p className="text-xs text-muted-foreground hidden sm:block">
                 Stay organized, stay productive
@@ -81,13 +81,72 @@ export default function DashboardLayout({
       </header>
 
       {/* Main Content */}
-      <main className="container py-8 animate-fade-in">{children}</main>
+      <main className="container py-8 animate-fade-in flex-1">{children}</main>
 
       {/* Footer */}
-      <footer className="border-t py-6 mt-auto">
-        <div className="container flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>Built with Next.js, FastAPI & Neon</p>
-          <p>Phase II - Hackathon Todo App</p>
+      <footer className="border-t bg-card/50 mt-auto">
+        <div className="container py-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Left Section - Logo, Name & Description */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg gradient-primary shadow-glow-sm">
+                  <CheckSquare className="h-5 w-5 text-white" />
+                </div>
+                <h2 className="text-lg font-bold">
+                  <span className="text-gradient">todoX</span>
+                </h2>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Your ultimate task management solution. Stay organized, boost productivity,
+                and achieve your goals with our intuitive and powerful todo application.
+              </p>
+            </div>
+
+            {/* Middle Section - Empty for spacing on desktop */}
+            <div className="hidden md:block" />
+
+            {/* Right Section - Social Links */}
+            <div className="flex flex-col items-start md:items-end gap-4">
+              <h3 className="text-sm font-semibold">Connect With Us</h3>
+              <div className="flex items-center gap-3">
+                <a
+                  href="https://linkedin.com/in/tafzeel-ahmed-khan-379510366"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted hover:bg-primary hover:text-white transition-all duration-200"
+                  aria-label="LinkedIn"
+                >
+                  <Linkedin className="h-5 w-5" />
+                </a>
+                <a
+                  href="https://github.com/Tafzeel99"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted hover:bg-primary hover:text-white transition-all duration-200"
+                  aria-label="GitHub"
+                >
+                  <Github className="h-5 w-5" />
+                </a>
+                <a
+                  href="https://www.instagram.com/tafzeel._.here/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted hover:bg-primary hover:text-white transition-all duration-200"
+                  aria-label="Instagram"
+                >
+                  <Instagram className="h-5 w-5" />
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Copyright */}
+          <div className="mt-8 pt-6 border-t border-border/50">
+            <p className="text-center text-sm text-muted-foreground">
+              Copyright © 2026, Built by Tafzeel® with ❤️
+            </p>
+          </div>
         </div>
       </footer>
     </div>

@@ -23,7 +23,7 @@ export default function SignupPage() {
             <CheckSquare className="h-7 w-7 text-white" />
           </div>
           <h1 className="text-2xl font-bold">
-            <span className="text-gradient">TaskFlow</span>
+            <span className="text-gradient">todoX</span>
           </h1>
         </div>
 
@@ -32,7 +32,7 @@ export default function SignupPage() {
           <CardHeader className="text-center space-y-1 pb-4">
             <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
             <CardDescription>
-              Get started with TaskFlow today
+              Get started with todoX today
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
