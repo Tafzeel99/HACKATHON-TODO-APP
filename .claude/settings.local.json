@@ -10,7 +10,15 @@
       "Bash(dir \"D:\\\\IT CLASSES pc\\\\HACKATHON-TODO-APP\\\\.claude\\\\skills\\\\pydantic-validator\\\\references\")",
       "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File \".specify/scripts/powershell/check-prerequisites.ps1\" -Json)",
       "Bash(powershell -ExecutionPolicy Bypass -File:*)",
-      "Bash(pip install:*)"
+      "Bash(pip install:*)",
+      "Bash(wc:*)",
+      "Bash(cmd.exe /c \"uv run pytest -v --tb=short\")",
+      "Bash(cmd.exe /c \".venv\\\\Scripts\\\\python.exe -m pytest -v --tb=short 2>&1\")",
+      "Bash(npm run build:*)",
+      "Bash(python -m pytest:*)",
+      "Bash(python3 -m pytest:*)",
+      "Bash(.venv/bin/python -m pytest tests/ -v --tb=short)",
+      "Bash(.venv/Scripts/python.exe:*)"
     ]
   }
 }

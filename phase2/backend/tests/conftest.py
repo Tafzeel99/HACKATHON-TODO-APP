@@ -104,12 +104,16 @@ def auth_headers(create_test_token: str) -> dict[str, str]:
 @pytest.fixture
 async def test_user(test_session: AsyncSession, test_user_id: uuid.UUID, test_user_data: dict) -> dict:
     """Create a test user in the database and return as dict."""
-    from passlib.hash import bcrypt
+    import bcrypt as bcrypt_lib
+
+    hashed = bcrypt_lib.hashpw(
+        test_user_data["password"].encode("utf-8"), bcrypt_lib.gensalt()
+    ).decode("utf-8")
 
     user = User(
         id=test_user_id,
         email=test_user_data["email"],
-        hashed_password=bcrypt.hash(test_user_data["password"]),
+        hashed_password=hashed,
         name=test_user_data["name"],
     )
     test_session.add(user)

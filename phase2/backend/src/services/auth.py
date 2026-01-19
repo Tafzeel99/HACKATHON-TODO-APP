@@ -3,8 +3,8 @@
 import uuid
 from datetime import datetime, timedelta
 
+import bcrypt as bcrypt_lib
 from jose import jwt
-from passlib.hash import bcrypt
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -34,7 +34,9 @@ class AuthService:
     async def create_user(self, data: UserCreate) -> User:
         """Create a new user account."""
         # Hash the password
-        hashed_password = bcrypt.hash(data.password)
+        hashed_password = bcrypt_lib.hashpw(
+            data.password.encode("utf-8"), bcrypt_lib.gensalt()
+        ).decode("utf-8")
 
         # Create user
         user = User(
@@ -51,7 +53,9 @@ class AuthService:
 
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
         """Verify a password against its hash."""
-        return bcrypt.verify(plain_password, hashed_password)
+        return bcrypt_lib.checkpw(
+            plain_password.encode("utf-8"), hashed_password.encode("utf-8")
+        )
 
     def create_access_token(self, user_id: uuid.UUID) -> TokenResponse:
         """Create a JWT access token for a user."""
