@@ -18,7 +18,8 @@
       "Bash(python -m pytest:*)",
       "Bash(python3 -m pytest:*)",
       "Bash(.venv/bin/python -m pytest tests/ -v --tb=short)",
-      "Bash(.venv/Scripts/python.exe:*)"
+      "Bash(.venv/Scripts/python.exe:*)",
+      "WebSearch"
     ]
   }
 }

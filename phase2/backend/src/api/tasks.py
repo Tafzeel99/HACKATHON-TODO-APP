@@ -7,7 +7,15 @@ from typing import Literal
 from fastapi import APIRouter, HTTPException, Query, status
 
 from src.api.deps import CurrentUser, DbSession
-from src.schemas import TagsResponse, TaskCreate, TaskListResponse, TaskResponse, TaskUpdate
+from src.schemas import (
+    BulkArchive,
+    TagsResponse,
+    TaskCreate,
+    TaskListResponse,
+    TaskReorder,
+    TaskResponse,
+    TaskUpdate,
+)
 from src.services import TaskService
 
 router = APIRouter()
@@ -75,6 +83,18 @@ async def list_tasks(
     overdue_only: bool = Query(
         False, description="Only show overdue tasks"
     ),
+    project_id: uuid.UUID | None = Query(
+        None, description="Filter by project"
+    ),
+    archived: bool | None = Query(
+        None, description="Filter by archived status (None = non-archived)"
+    ),
+    board_status: Literal["todo", "in_progress", "done"] | None = Query(
+        None, description="Filter by Kanban board status"
+    ),
+    pinned: bool | None = Query(
+        None, description="Filter by pinned status"
+    ),
 ) -> TaskListResponse:
     """List all tasks for the authenticated user with filtering and sorting.
 
@@ -87,6 +107,10 @@ async def list_tasks(
     - **due_before**: Filter tasks due before this date
     - **due_after**: Filter tasks due after this date
     - **overdue_only**: Only show overdue tasks
+    - **project_id**: Filter by project
+    - **archived**: Filter by archived status (None = non-archived)
+    - **board_status**: Filter by Kanban board status
+    - **pinned**: Filter by pinned status
     """
     task_service = TaskService(session)
 
@@ -106,6 +130,10 @@ async def list_tasks(
         due_before=due_before,
         due_after=due_after,
         overdue_only=overdue_only,
+        project_id=project_id,
+        archived=archived,
+        board_status=board_status,
+        pinned=pinned,
     )
 
 
@@ -257,3 +285,128 @@ async def toggle_task_complete(
 
     updated_task, _next_task = await task_service.toggle_complete(task)
     return TaskResponse.from_task(updated_task)
+
+
+@router.patch(
+    "/{task_id}/pin",
+    response_model=TaskResponse,
+    summary="Toggle task pinned status",
+)
+async def toggle_task_pin(
+    task_id: uuid.UUID,
+    current_user: CurrentUser,
+    session: DbSession,
+) -> TaskResponse:
+    """Toggle task pinned status.
+
+    Returns 404 if task not found, 403 if task belongs to another user.
+    """
+    task_service = TaskService(session)
+    task = await task_service.get_by_id(task_id)
+
+    if not task:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Task not found",
+        )
+
+    if task.user_id != current_user:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Forbidden",
+        )
+
+    updated_task = await task_service.toggle_pin(task)
+    return TaskResponse.from_task(updated_task)
+
+
+@router.patch(
+    "/{task_id}/archive",
+    response_model=TaskResponse,
+    summary="Toggle task archived status",
+)
+async def toggle_task_archive(
+    task_id: uuid.UUID,
+    current_user: CurrentUser,
+    session: DbSession,
+) -> TaskResponse:
+    """Toggle task archived status.
+
+    Returns 404 if task not found, 403 if task belongs to another user.
+    """
+    task_service = TaskService(session)
+    task = await task_service.get_by_id(task_id)
+
+    if not task:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Task not found",
+        )
+
+    if task.user_id != current_user:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Forbidden",
+        )
+
+    updated_task = await task_service.toggle_archive(task)
+    return TaskResponse.from_task(updated_task)
+
+
+@router.patch(
+    "/bulk-archive",
+    summary="Bulk archive/unarchive tasks",
+)
+async def bulk_archive_tasks(
+    data: BulkArchive,
+    current_user: CurrentUser,
+    session: DbSession,
+) -> dict:
+    """Bulk archive or unarchive tasks.
+
+    If task_ids is not provided, archives all completed tasks.
+    """
+    task_service = TaskService(session)
+    count = await task_service.bulk_archive(
+        current_user,
+        task_ids=data.task_ids,
+        archive=data.archive,
+    )
+    return {"count": count, "archived": data.archive}
+
+
+@router.patch(
+    "/reorder",
+    response_model=list[TaskResponse],
+    summary="Reorder tasks",
+)
+async def reorder_tasks(
+    data: TaskReorder,
+    current_user: CurrentUser,
+    session: DbSession,
+) -> list[TaskResponse]:
+    """Reorder tasks based on provided order.
+
+    If board_status is provided, also updates the board_status for all tasks.
+    """
+    task_service = TaskService(session)
+    tasks = await task_service.reorder_tasks(
+        current_user,
+        task_ids=data.task_ids,
+        board_status=data.board_status,
+    )
+    return [TaskResponse.from_task(task) for task in tasks]
+
+
+@router.get(
+    "/archived",
+    response_model=TaskListResponse,
+    summary="List archived tasks",
+)
+async def list_archived_tasks(
+    current_user: CurrentUser,
+    session: DbSession,
+) -> TaskListResponse:
+    """List all archived tasks for the authenticated user."""
+    task_service = TaskService(session)
+    return await task_service.list_archived(current_user)

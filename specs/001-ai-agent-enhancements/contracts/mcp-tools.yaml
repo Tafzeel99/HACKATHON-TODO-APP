@@ -1,0 +1,398 @@
+# MCP Tools Contract: Phase 3.5 - AI Agent & App Enhancements
+# Version: 2.0.0
+# Date: 2026-01-24
+
+tools:
+  # ============================================================================
+  # ENHANCED: add_task
+  # ============================================================================
+  - name: add_task
+    description: |
+      Create a new task for the user. Use this when the user wants to add,
+      create, or remember something. Supports priority, tags, due dates,
+      recurrence, and reminders.
+
+      Multi-language triggers:
+      - English: "add", "create", "remember", "need to"
+      - Roman Urdu: "add karo", "banana hai", "yaad dilao"
+      - Urdu: "شامل کرو", "بناؤ", "یاد دلاؤ"
+    parameters:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Task title (1-200 characters)
+          maxLength: 200
+        description:
+          type: string
+          description: Optional task description (0-1000 characters)
+          maxLength: 1000
+        priority:
+          type: string
+          enum: [low, medium, high]
+          default: medium
+          description: |
+            Task priority level.
+            High triggers: urgent, important, asap, zaroori, fori, ضروری, فوری
+            Low triggers: sometime, whenever, jab bhi, جب بھی
+        tags:
+          type: array
+          items:
+            type: string
+            maxLength: 30
+          maxItems: 10
+          description: Task tags/categories (max 10, each max 30 chars)
+        due_date:
+          type: string
+          format: date-time
+          description: |
+            Due date in ISO 8601 format. Parse natural language:
+            - tomorrow, kal, کل → +1 day
+            - next week, aglay hafta, اگلے ہفتے → +7 days
+            - in 3 days, 3 din mein → +3 days
+        recurrence_pattern:
+          type: string
+          enum: [none, daily, weekly, monthly]
+          default: none
+          description: |
+            Recurrence pattern for repeating tasks.
+            Triggers: every day, daily, roz, روزانہ
+                     every week, weekly, hafta war, ہفتہ وار
+                     every month, monthly, mahana, ماہانہ
+        recurrence_end_date:
+          type: string
+          format: date-time
+          description: Optional end date for recurrence
+        reminder_at:
+          type: string
+          format: date-time
+          description: When to remind (typically 1 hour before due_date)
+      required: [title]
+    returns:
+      type: object
+      properties:
+        task_id:
+          type: string
+          description: UUID of created task
+        status:
+          type: string
+          enum: [created]
+        title:
+          type: string
+        priority:
+          type: string
+        due_date:
+          type: string
+        recurrence:
+          type: string
+
+  # ============================================================================
+  # ENHANCED: list_tasks
+  # ============================================================================
+  - name: list_tasks
+    description: |
+      List and filter tasks for the user. Supports filtering by status,
+      priority, tags, due dates, and search.
+
+      Multi-language triggers:
+      - English: "show", "list", "what's pending", "my tasks"
+      - Roman Urdu: "dikhao", "batao", "mere tasks", "kya pending hai"
+      - Urdu: "دکھاؤ", "بتاؤ", "میرے ٹاسک", "کیا پینڈنگ ہے"
+    parameters:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [all, pending, completed]
+          default: all
+          description: Filter by completion status
+        priority:
+          type: string
+          enum: [all, low, medium, high]
+          default: all
+          description: Filter by priority level
+        tags:
+          type: array
+          items:
+            type: string
+          description: Filter by tags (returns tasks with ANY of these tags)
+        search:
+          type: string
+          description: Search keyword in title and description
+        due_before:
+          type: string
+          format: date-time
+          description: Filter tasks due before this date
+        due_after:
+          type: string
+          format: date-time
+          description: Filter tasks due after this date
+        overdue_only:
+          type: boolean
+          default: false
+          description: Only show overdue tasks (due_date < now AND not completed)
+        sort_by:
+          type: string
+          enum: [created_at, due_date, priority]
+          default: created_at
+          description: Sort field
+    returns:
+      type: object
+      properties:
+        tasks:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              title: { type: string }
+              description: { type: string }
+              completed: { type: boolean }
+              priority: { type: string }
+              tags: { type: array }
+              due_date: { type: string }
+              is_overdue: { type: boolean }
+              recurrence_pattern: { type: string }
+        count:
+          type: integer
+        filter:
+          type: object
+
+  # ============================================================================
+  # ENHANCED: complete_task
+  # ============================================================================
+  - name: complete_task
+    description: |
+      Mark a task as complete. For recurring tasks, automatically creates
+      the next occurrence.
+
+      Multi-language triggers:
+      - English: "done", "complete", "finished", "mark done"
+      - Roman Urdu: "ho gaya", "khatam", "complete karo", "mukammal"
+      - Urdu: "ہو گیا", "ختم", "مکمل کرو", "مکمل"
+    parameters:
+      type: object
+      properties:
+        task_id:
+          type: string
+          description: UUID of task to complete (can also identify by title match)
+      required: [task_id]
+    returns:
+      type: object
+      properties:
+        task_id:
+          type: string
+        status:
+          type: string
+          enum: [completed]
+        title:
+          type: string
+        next_task:
+          type: object
+          description: If recurring, contains the newly created next occurrence
+          properties:
+            task_id: { type: string }
+            due_date: { type: string }
+
+  # ============================================================================
+  # UNCHANGED: delete_task
+  # ============================================================================
+  - name: delete_task
+    description: |
+      Remove a task from the list.
+
+      Multi-language triggers:
+      - English: "delete", "remove", "cancel"
+      - Roman Urdu: "delete karo", "hata do", "nikalo"
+      - Urdu: "حذف کرو", "ہٹاؤ", "نکالو"
+    parameters:
+      type: object
+      properties:
+        task_id:
+          type: string
+          description: UUID of task to delete
+      required: [task_id]
+    returns:
+      type: object
+      properties:
+        task_id:
+          type: string
+        status:
+          type: string
+          enum: [deleted]
+        title:
+          type: string
+
+  # ============================================================================
+  # ENHANCED: update_task
+  # ============================================================================
+  - name: update_task
+    description: |
+      Modify task details including title, description, priority, tags,
+      due date, recurrence, and reminder.
+
+      Multi-language triggers:
+      - English: "change", "update", "rename", "modify"
+      - Roman Urdu: "badal do", "change karo", "update karo"
+      - Urdu: "تبدیل کرو", "بدلو"
+    parameters:
+      type: object
+      properties:
+        task_id:
+          type: string
+          description: UUID of task to update
+        title:
+          type: string
+          description: New title
+        description:
+          type: string
+          description: New description
+        priority:
+          type: string
+          enum: [low, medium, high]
+          description: New priority
+        tags:
+          type: array
+          items:
+            type: string
+          description: Replace all tags (to add/remove, get current first)
+        due_date:
+          type: string
+          format: date-time
+          description: New due date
+        recurrence_pattern:
+          type: string
+          enum: [none, daily, weekly, monthly]
+          description: New recurrence pattern
+        recurrence_end_date:
+          type: string
+          format: date-time
+          description: New recurrence end date
+        reminder_at:
+          type: string
+          format: date-time
+          description: New reminder time
+      required: [task_id]
+    returns:
+      type: object
+      properties:
+        task_id:
+          type: string
+        status:
+          type: string
+          enum: [updated]
+        title:
+          type: string
+        changes:
+          type: array
+          items:
+            type: string
+          description: List of fields that were changed
+
+  # ============================================================================
+  # NEW: get_analytics
+  # ============================================================================
+  - name: get_analytics
+    description: |
+      Get productivity statistics and task analytics for the user.
+
+      Multi-language triggers:
+      - English: "how many", "stats", "productivity", "summary", "analytics"
+      - Roman Urdu: "kitne", "statistics", "kaam kaisa", "summary dikhao"
+      - Urdu: "کتنے", "اعداد و شمار", "خلاصہ دکھاؤ"
+    parameters:
+      type: object
+      properties:
+        period:
+          type: string
+          enum: [today, this_week, this_month, all_time]
+          default: all_time
+          description: Time period for analytics
+    returns:
+      type: object
+      properties:
+        total_tasks:
+          type: integer
+          description: Total number of tasks
+        completed_count:
+          type: integer
+          description: Number of completed tasks
+        pending_count:
+          type: integer
+          description: Number of pending tasks
+        overdue_count:
+          type: integer
+          description: Number of overdue tasks
+        completion_rate:
+          type: number
+          description: Percentage of tasks completed (0-100)
+        tasks_by_priority:
+          type: object
+          properties:
+            high:
+              type: object
+              properties:
+                total: { type: integer }
+                completed: { type: integer }
+                pending: { type: integer }
+            medium:
+              type: object
+            low:
+              type: object
+        tasks_due_today:
+          type: integer
+        tasks_due_this_week:
+          type: integer
+        completed_this_week:
+          type: integer
+
+# ============================================================================
+# System Prompt Additions for Multi-Language Support
+# ============================================================================
+system_prompt_additions: |
+  ## Multi-Language Support
+
+  You are a multilingual task management assistant fluent in English, Urdu,
+  and Roman Urdu (Urdu written in Latin script).
+
+  ### Language Rules:
+  1. **MIRROR the user's language** - Always respond in the same language they use
+  2. **Understand Roman Urdu variations** - Common spelling differences are OK
+  3. **Parse dates in any language** - Convert to ISO format for tools
+  4. **Confirm actions in user's language** - Use appropriate phrases
+
+  ### Roman Urdu Reference:
+  | Action | Phrases |
+  |--------|---------|
+  | Add | add karo, banana hai, yaad rakhna |
+  | List | dikhao, batao, list karo |
+  | Complete | ho gaya, khatam, mukammal |
+  | Delete | hata do, delete karo, nikalo |
+  | Update | badal do, change karo |
+  | Priority | zaroori (high), jab bhi (low) |
+  | Dates | aaj (today), kal (tomorrow), aglay hafta (next week) |
+
+  ### Urdu Script Reference:
+  | Action | Phrases |
+  |--------|---------|
+  | Add | شامل کرو، بناؤ، یاد رکھو |
+  | List | دکھاؤ، بتاؤ، لسٹ کرو |
+  | Complete | ہو گیا، مکمل، ختم |
+  | Delete | ہٹاؤ، حذف کرو، نکالو |
+  | Update | تبدیل کرو، بدلو |
+  | Priority | ضروری (high), جب بھی (low) |
+  | Dates | آج، کل، اگلے ہفتے |
+
+  ### Example Interactions:
+
+  User: "Mujhe kal grocery leni hai"
+  → Call add_task(title="Grocery leni hai", due_date=tomorrow)
+  → Reply: "Task 'Grocery leni hai' kal ke liye add ho gaya!"
+
+  User: "میرے ٹاسک دکھاؤ"
+  → Call list_tasks()
+  → Reply in Urdu script with task list
+
+  User: "Show high priority tasks"
+  → Call list_tasks(priority="high")
+  → Reply in English

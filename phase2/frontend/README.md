@@ -40,6 +40,8 @@ Required variables:
 
 ```bash
 npm run dev
+npm run dev -- -H 127.0.0.1
+
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.

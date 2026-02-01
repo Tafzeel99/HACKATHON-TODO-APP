@@ -9,24 +9,22 @@ interface PriorityBadgeProps {
   className?: string;
 }
 
+// Minimal Tech priority config - clean with border accents
 const priorityConfig: Record<
   Priority,
-  { label: string; bgClass: string; textClass: string }
+  { label: string; classes: string }
 > = {
   low: {
     label: "Low",
-    bgClass: "bg-blue-100 dark:bg-blue-900/30",
-    textClass: "text-blue-700 dark:text-blue-300",
+    classes: "bg-muted/50 text-muted-foreground border border-border/50",
   },
   medium: {
     label: "Medium",
-    bgClass: "bg-amber-100 dark:bg-amber-900/30",
-    textClass: "text-amber-700 dark:text-amber-300",
+    classes: "bg-warning/10 text-warning border border-warning/25",
   },
   high: {
     label: "High",
-    bgClass: "bg-red-100 dark:bg-red-900/30",
-    textClass: "text-red-700 dark:text-red-300",
+    classes: "bg-destructive/10 text-destructive border border-destructive/25",
   },
 };
 
@@ -40,10 +38,9 @@ export function PriorityBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full font-medium",
-        config.bgClass,
-        config.textClass,
-        size === "sm" ? "px-2 py-0.5 text-xs" : "px-2.5 py-1 text-sm",
+        "inline-flex items-center rounded font-semibold tracking-wide uppercase",
+        config.classes,
+        size === "sm" ? "px-1.5 py-0.5 text-[10px]" : "px-2 py-1 text-xs",
         className
       )}
     >

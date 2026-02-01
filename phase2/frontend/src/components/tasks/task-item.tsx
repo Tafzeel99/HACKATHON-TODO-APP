@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Check, Trash2, Edit2, X, Calendar, Repeat, Bell, AlertCircle } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Check, Trash2, Edit2, X, Calendar, Repeat, Bell, AlertCircle, Pin, Archive } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -10,14 +10,17 @@ import { cn } from "@/lib/utils";
 import { taskApi } from "@/lib/api";
 import { toast } from "@/hooks/use-toast";
 import { PriorityBadge } from "./priority-badge";
+import { TaskColorIndicator } from "./task-color-picker";
+import { useConfetti } from "@/components/ui/confetti";
 import type { Task } from "@/types/task";
 
+// Minimal Tech tag colors - monochrome with accent
 const tagColors = [
-  "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300",
-  "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
-  "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300",
-  "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300",
-  "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300",
+  "bg-primary/10 text-primary border border-primary/20",
+  "bg-muted text-foreground border border-border/50",
+  "bg-success/10 text-success border border-success/20",
+  "bg-warning/10 text-warning border border-warning/20",
+  "bg-muted text-muted-foreground border border-border/50",
 ];
 
 function getTagColor(tag: string): string {
@@ -63,13 +66,27 @@ interface TaskItemProps {
   task: Task;
   onUpdate?: (task: Task) => void;
   onDelete?: (taskId: string) => void;
+  onPin?: (task: Task) => void;
+  onArchive?: (task: Task) => void;
+  enableSwipe?: boolean;
+  showProjectBadge?: boolean;
 }
 
-export function TaskItem({ task, onUpdate, onDelete }: TaskItemProps) {
+export function TaskItem({
+  task,
+  onUpdate,
+  onDelete,
+  onPin,
+  onArchive,
+  enableSwipe = false,
+  showProjectBadge = false,
+}: TaskItemProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(task.title);
   const [isCompleting, setIsCompleting] = useState(false);
+  const titleRef = useRef<HTMLParagraphElement>(null);
+  const { fire: fireConfetti } = useConfetti();
 
   const handleToggleComplete = async () => {
     setIsLoading(true);
@@ -77,6 +94,14 @@ export function TaskItem({ task, onUpdate, onDelete }: TaskItemProps) {
     try {
       const updatedTask = await taskApi.toggleComplete(task.id);
       onUpdate?.(updatedTask);
+
+      // Fire light confetti when completing a task
+      if (updatedTask.completed) {
+        fireConfetti({
+          particleCount: 15,
+          spread: 40,
+        });
+      }
 
       let toastMessage = updatedTask.completed ? "Task completed" : "Task reopened";
       if (updatedTask.completed && task.recurrence_pattern !== "none") {
@@ -98,6 +123,32 @@ export function TaskItem({ task, onUpdate, onDelete }: TaskItemProps) {
       setIsLoading(false);
       setTimeout(() => setIsCompleting(false), 300);
     }
+  };
+
+  const handleTogglePin = async () => {
+    if (!onPin) return;
+    setIsLoading(true);
+    try {
+      onPin(task);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleToggleArchive = async () => {
+    if (!onArchive) return;
+    setIsLoading(true);
+    try {
+      onArchive(task);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle double-click to enter edit mode
+  const handleTitleDoubleClick = () => {
+    setIsEditing(true);
+    setEditTitle(task.title);
   };
 
   const handleDelete = async () => {
@@ -159,15 +210,18 @@ export function TaskItem({ task, onUpdate, onDelete }: TaskItemProps) {
   return (
     <div
       className={cn(
-        "group relative flex items-start gap-4 rounded-xl border bg-card p-4 transition-all duration-200",
-        "hover:border-primary/20 hover:shadow-sm",
-        task.completed && "bg-muted/30 border-border/50",
-        task.is_overdue && !task.completed && "border-red-200 dark:border-red-900/50 bg-red-50/30 dark:bg-red-900/10",
+        "group relative flex items-start gap-4 rounded-lg border border-border/50 bg-card p-4 transition-all duration-150",
+        "hover:border-primary/25 hover:shadow-sm",
+        task.completed && "bg-muted/20 border-border/30",
+        task.is_overdue && !task.completed && "border-destructive/30 bg-destructive/5",
+        task.pinned && "border-primary/40 bg-primary/5",
         isLoading && "opacity-60 pointer-events-none",
-        isCompleting && "animate-check"
+        isCompleting && "animate-check-bounce"
       )}
     >
-      {/* Checkbox with animation */}
+      {/* Color indicator */}
+      <TaskColorIndicator color={task.color} />
+      {/* Checkbox - Minimal Tech style */}
       <div className="pt-0.5">
         <Checkbox
           checked={task.completed}
@@ -175,7 +229,7 @@ export function TaskItem({ task, onUpdate, onDelete }: TaskItemProps) {
           disabled={isLoading}
           aria-label={task.completed ? "Mark as incomplete" : "Mark as complete"}
           className={cn(
-            "h-5 w-5 rounded-full transition-all duration-200",
+            "h-5 w-5 rounded transition-all duration-150 border-2",
             task.completed && "bg-success border-success data-[state=checked]:bg-success"
           )}
         />
@@ -218,17 +272,23 @@ export function TaskItem({ task, onUpdate, onDelete }: TaskItemProps) {
           <div className="flex-1 min-w-0">
             {/* Title row with priority badge */}
             <div className="flex items-center gap-2 flex-wrap">
+              {task.pinned && (
+                <Pin className="h-3.5 w-3.5 text-primary fill-primary shrink-0" />
+              )}
               <p
+                ref={titleRef}
+                onDoubleClick={handleTitleDoubleClick}
                 className={cn(
-                  "font-medium leading-tight transition-all duration-200",
+                  "font-medium leading-tight transition-all duration-200 cursor-text",
                   task.completed && "text-muted-foreground line-through"
                 )}
+                title="Double-click to edit"
               >
                 {task.title}
               </p>
               <PriorityBadge priority={task.priority} />
               {task.is_overdue && !task.completed && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold tracking-wide uppercase bg-destructive/10 text-destructive border border-destructive/20">
                   <AlertCircle className="h-3 w-3" />
                   Overdue
                 </span>
@@ -292,10 +352,10 @@ export function TaskItem({ task, onUpdate, onDelete }: TaskItemProps) {
                 </div>
               )}
 
-              {/* Completed badge */}
+              {/* Completed badge - Minimal Tech */}
               {task.completed && (
-                <span className="inline-flex items-center rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
-                  Completed
+                <span className="inline-flex items-center rounded px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase bg-success/10 text-success border border-success/20">
+                  Done
                 </span>
               )}
             </div>
@@ -303,6 +363,35 @@ export function TaskItem({ task, onUpdate, onDelete }: TaskItemProps) {
 
           {/* Action buttons - visible on hover */}
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            {onPin && (
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={handleTogglePin}
+                disabled={isLoading}
+                aria-label={task.pinned ? "Unpin task" : "Pin task"}
+                className={cn(
+                  "h-8 w-8",
+                  task.pinned
+                    ? "text-primary hover:text-primary hover:bg-primary/10"
+                    : "text-muted-foreground hover:text-primary hover:bg-primary/10"
+                )}
+              >
+                <Pin className={cn("h-4 w-4", task.pinned && "fill-current")} />
+              </Button>
+            )}
+            {onArchive && (
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={handleToggleArchive}
+                disabled={isLoading}
+                aria-label={task.archived ? "Unarchive task" : "Archive task"}
+                className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
+              >
+                <Archive className="h-4 w-4" />
+              </Button>
+            )}
             <Button
               size="icon"
               variant="ghost"
