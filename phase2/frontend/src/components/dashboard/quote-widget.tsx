@@ -50,7 +50,7 @@ export function QuoteWidget({ className, showRefresh = true }: QuoteWidgetProps)
         )}
       >
         <blockquote className="text-lg font-medium text-foreground leading-relaxed">
-          "{quote.text}"
+          &ldquo;{quote.text}&rdquo;
         </blockquote>
         <cite className="block mt-3 text-sm text-muted-foreground not-italic">
           — {quote.author}
@@ -93,7 +93,7 @@ export function QuoteWidgetCompact({ className }: { className?: string }) {
       )}
     >
       <p className="text-sm text-muted-foreground italic">
-        "{quote.text}"
+        &ldquo;{quote.text}&rdquo;
       </p>
       <p className="mt-1 text-xs text-muted-foreground/70">
         — {quote.author}

@@ -36,7 +36,7 @@ export function TaskColorPicker({
           {value ? (
             <div
               className="h-4 w-4 rounded-full ring-2 ring-offset-2 ring-offset-background"
-              style={{ backgroundColor: value, ringColor: value }}
+              style={{ backgroundColor: value }}
             />
           ) : (
             <Palette className="h-4 w-4 text-muted-foreground" />

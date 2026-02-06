@@ -43,11 +43,11 @@ export function CommentsSection({
         title: "Comment added",
         description: "Your comment has been posted",
       });
-    } catch (error: any) {
+    } catch (error) {
       toast({
         variant: "destructive",
         title: "Failed to add comment",
-        description: error.message || "Could not post comment",
+        description: error instanceof Error ? error.message : "Could not post comment",
       });
     } finally {
       setIsSubmitting(false);
@@ -59,11 +59,11 @@ export function CommentsSection({
       await commentApi.update(commentId, content);
       onCommentsChange?.();
       toast({ title: "Comment updated" });
-    } catch (error: any) {
+    } catch (error) {
       toast({
         variant: "destructive",
         title: "Failed to update comment",
-        description: error.message || "Could not update comment",
+        description: error instanceof Error ? error.message : "Could not update comment",
       });
       throw error;
     }
@@ -74,11 +74,11 @@ export function CommentsSection({
       await commentApi.delete(commentId);
       onCommentsChange?.();
       toast({ title: "Comment deleted" });
-    } catch (error: any) {
+    } catch (error) {
       toast({
         variant: "destructive",
         title: "Failed to delete comment",
-        description: error.message || "Could not delete comment",
+        description: error instanceof Error ? error.message : "Could not delete comment",
       });
       throw error;
     }
@@ -89,11 +89,11 @@ export function CommentsSection({
       await commentApi.create(taskId, content, parentId);
       onCommentsChange?.();
       toast({ title: "Reply added" });
-    } catch (error: any) {
+    } catch (error) {
       toast({
         variant: "destructive",
         title: "Failed to add reply",
-        description: error.message || "Could not post reply",
+        description: error instanceof Error ? error.message : "Could not post reply",
       });
       throw error;
     }
