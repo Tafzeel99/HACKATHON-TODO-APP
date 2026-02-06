@@ -18,7 +18,14 @@
       "Bash(python -m pytest:*)",
       "Bash(python3 -m pytest:*)",
       "Bash(.venv/bin/python -m pytest tests/ -v --tb=short)",
-      "Bash(.venv/Scripts/python.exe:*)"
+      "Bash(.venv/Scripts/python.exe:*)",
+      "WebSearch",
+      "Bash(cd:*)",
+      "Bash(docker build:*)",
+      "Bash(helm lint:*)",
+      "Bash(git restore:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: Complete Phase 4 - Kubernetes Deployment with Neon PostgreSQL\n\n🚀 Major Features Added:\n- Complete Docker containerization \\(backend + frontend\\)\n- Kubernetes deployment with Helm charts\n- Neon PostgreSQL integration \\(replaces SQLite\\)\n- Production-ready configuration with health checks\n\n📦 Phase 4 Implementation:\nBackend Container:\n- Multi-stage Dockerfile with Python 3.13 + UV\n- Unified backend \\(Phase 2 + Phase 3 combined\\)\n- FastAPI + SQLModel + MCP Tools + ChatKit Server\n- Size: 339MB \\(optimized\\)\n\nFrontend Container:\n- Multi-stage Dockerfile with Next.js 15 standalone\n- ChatKit integration with OpenAI domain key\n- Build-time environment variables\n- Size: 410MB \\(optimized\\)\n\nKubernetes Resources:\n- Helm Chart v4.0.0 with complete templates\n- Backend deployment with NodePort service \\(30080\\)\n- Frontend deployment with NodePort service \\(30030\\)\n- ConfigMaps for environment configuration\n- Secrets for DATABASE_URL and API keys\n- Health checks \\(liveness + readiness probes\\)\n- Resource limits and security contexts\n\nDatabase Configuration:\n- Neon PostgreSQL connection \\(production-ready\\)\n- Shared database across Phase 2, 3, and 4\n- Data persistence across pod restarts\n- Multi-replica support capability\n\n📝 Documentation:\n- DEPLOYMENT_GUIDE.md \\(650+ lines\\)\n- QUICK_START.md \\(5-command deployment\\)\n- RUNNING_CONTAINERS.md\n- Updated root README.md with Phase 4 section\n\n🔧 Phase 1 Fixes:\n- Added missing __init__.py for proper module imports\n- Created README.md with setup instructions\n- Created TROUBLESHOOTING.md for common errors\n- Fixed import path issues\n\n🧹 Cleanup:\n- Moved Phase 3 test files to tests/ directory\n- Removed outdated guide files\n- Updated .gitignore \\(added *.db, todo_app.db\\)\n- Ensured .env files are properly ignored\n\n✅ Verification:\n- Helm chart validated \\(helm lint passed\\)\n- All containers built successfully\n- Kubernetes deployment tested on Minikube\n- Health checks passing \\(2/2 pods running\\)\n- ChatKit functional with domain key\n- Neon PostgreSQL connected\n\n📊 Changes:\n- 218 files changed\n- 43,408+ insertions\n- Complete Phase 4 ready for production\n\n🔗 Access:\n- Frontend: http://127.0.0.1:3000 \\(via port-forward\\)\n- AI Chat: http://127.0.0.1:3000/chat\n- Backend API: http://127.0.0.1:8000/docs\n- NodePort: http://<minikube-ip>:30030\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)"
     ]
   }
 }

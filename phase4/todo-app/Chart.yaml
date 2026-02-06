@@ -1,0 +1,25 @@
+apiVersion: v2
+name: todo-app
+description: Phase 4 Todo Application - Full-Stack CRUD + AI Chatbot with ChatKit
+type: application
+
+# Chart version
+version: 4.0.0
+
+# Application version
+appVersion: "4.0.0"
+
+keywords:
+  - todo
+  - fastapi
+  - nextjs
+  - chatkit
+  - ai
+  - kubernetes
+
+maintainers:
+  - name: Todo App Team
+    email: todo-app@example.com
+
+sources:
+  - https://github.com/your-repo/todo-app

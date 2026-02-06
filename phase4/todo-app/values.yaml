@@ -1,0 +1,184 @@
+# Phase 4 Todo App - Helm Chart Values
+# For Local Minikube Deployment
+
+# Global settings
+global:
+  namespace: default
+
+# Backend configuration
+backend:
+  enabled: true
+  replicaCount: 1
+
+  image:
+    repository: todo-backend
+    pullPolicy: Never  # Use local images for Minikube
+    tag: "4.0.0"
+
+  service:
+    type: NodePort
+    port: 8000
+    targetPort: 8000
+    nodePort: 30080  # Access via minikube ip:30080
+
+  # Environment variables
+  env:
+    BETTER_AUTH_SECRET: "hackathon-todo-app-secret-key-minimum-32-characters-long"
+    BETTER_AUTH_URL: "http://127.0.0.1:3000"
+    LLM_BASE_URL: "https://openrouter.ai/api/v1"
+    LLM_MODEL: "openai/gpt-4o-mini"
+    CORS_ORIGINS: '["http://127.0.0.1:3000","http://localhost:3000"]'
+    RATE_LIMIT_REQUESTS: "100"
+    RATE_LIMIT_WINDOW_SECONDS: "60"
+
+  # Secrets (sensitive data)
+  secrets:
+    # Neon PostgreSQL Database URL (REQUIRED)
+    # Format: postgresql://user:password@host.neon.tech/dbname?sslmode=require
+    DATABASE_URL: "postgresql://neondb_owner:npg_pVXCFQuxv41y@ep-noisy-thunder-a1jta7js-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
+
+    # OpenRouter API Key (REQUIRED for AI features)
+    OPEN_ROUTER_KEY: "sk-or-v1-test-key"  # Replace with real key
+
+  # Health checks
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 8000
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 8000
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+  # Resource limits
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    allowPrivilegeEscalation: false
+
+# Frontend configuration
+frontend:
+  enabled: true
+  replicaCount: 1
+
+  image:
+    repository: todo-frontend
+    pullPolicy: Never  # Use local images for Minikube
+    tag: "4.0.0"
+
+  service:
+    type: NodePort
+    port: 3000
+    targetPort: 3000
+    nodePort: 30030  # Access via minikube ip:30030
+
+  # Environment variables (baked into image at build time)
+  # Note: For Next.js, these must be set during docker build
+  env:
+    NEXT_PUBLIC_API_URL: "http://127.0.0.1:8000"
+    NEXT_PUBLIC_OPENAI_DOMAIN_KEY: "domain_pk_696ffdeaf57c8197a912387a3d6cfeec07db6318cdf03509"
+
+  # Health checks
+  livenessProbe:
+    httpGet:
+      path: /
+      port: 3000
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /
+      port: 3000
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+  # Resource limits
+  resources:
+    limits:
+      cpu: 300m
+      memory: 256Mi
+    requests:
+      cpu: 150m
+      memory: 128Mi
+
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1001
+    allowPrivilegeEscalation: false
+
+# Service Account
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+# Pod annotations and labels
+podAnnotations: {}
+podLabels:
+  app: todo-app
+  version: "4.0.0"
+
+# Ingress configuration (optional - for production)
+ingress:
+  enabled: false
+  className: "nginx"
+  annotations: {}
+  hosts:
+    - host: todo-app.local
+      paths:
+        - path: /
+          pathType: Prefix
+          backend: frontend
+        - path: /api
+          pathType: Prefix
+          backend: backend
+  tls: []
+
+# Autoscaling (disabled for local deployment)
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+# Persistent Volume for database (optional)
+persistence:
+  enabled: false
+  storageClass: "standard"
+  accessMode: ReadWriteOnce
+  size: 1Gi
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity: {}

@@ -113,3 +113,50 @@ class Task(SQLModel, table=True):
         nullable=True,
         description="Reminder datetime",
     )
+
+    # Collaboration features
+    assigned_to: uuid.UUID | None = Field(
+        default=None,
+        foreign_key="users.id",
+        nullable=True,
+        index=True,
+        description="User this task is assigned to",
+    )
+
+    # Organization features (Phase 2/3 enhancements)
+    project_id: uuid.UUID | None = Field(
+        default=None,
+        foreign_key="projects.id",
+        nullable=True,
+        index=True,
+        description="Project/list this task belongs to",
+    )
+    pinned: bool = Field(
+        default=False,
+        nullable=False,
+        description="Whether task is pinned to top",
+    )
+    archived: bool = Field(
+        default=False,
+        nullable=False,
+        index=True,
+        description="Whether task is archived",
+    )
+    color: str | None = Field(
+        default=None,
+        max_length=7,
+        nullable=True,
+        description="Task color as hex code",
+    )
+    board_status: str = Field(
+        default="todo",
+        max_length=20,
+        nullable=False,
+        index=True,
+        description="Kanban board status (todo, in_progress, done)",
+    )
+    position: int | None = Field(
+        default=None,
+        nullable=True,
+        description="Position for ordering within column/list",
+    )

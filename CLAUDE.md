@@ -1,4 +1,4 @@
-# Claude Code Rules
+﻿# Claude Code Rules
 
 
 **Project**: Hackathon II - The Evolution of Todo  

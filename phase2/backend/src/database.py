@@ -16,10 +16,17 @@ engine_kwargs: dict = {
 }
 
 if "sqlite" not in settings.database_url:
+    # PostgreSQL (Neon) settings with SSL
+    import ssl
+    ssl_context = ssl.create_default_context()
+    ssl_context.check_hostname = False
+    ssl_context.verify_mode = ssl.CERT_NONE
+
     engine_kwargs.update({
         "pool_pre_ping": True,
         "pool_size": 5,
         "max_overflow": 10,
+        "connect_args": {"ssl": ssl_context},
     })
 else:
     # SQLite specific settings

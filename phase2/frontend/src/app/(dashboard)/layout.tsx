@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { LogOut, CheckSquare, Github, Linkedin, Instagram } from "lucide-react";
+import { LogOut, Sparkles, Github, Linkedin, Instagram, Menu, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Sidebar } from "@/components/layout/sidebar";
+import { ErrorBoundary } from "@/components/error-boundary";
 import { isAuthenticated, signout } from "@/lib/auth";
+import { cn } from "@/lib/utils";
 
 export default function DashboardLayout({
   children,
@@ -15,6 +18,7 @@ export default function DashboardLayout({
 }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     // Check authentication on mount
@@ -34,121 +38,145 @@ export default function DashboardLayout({
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
+          {/* Modern loading spinner */}
           <div className="relative">
-            <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/30 border-t-primary" />
-            <CheckSquare className="absolute inset-0 m-auto h-5 w-5 text-primary" />
+            <div className="h-16 w-16 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Sparkles className="h-6 w-6 text-primary animate-pulse" />
+            </div>
           </div>
-          <p className="text-sm text-muted-foreground animate-pulse">Loading...</p>
+          <p className="text-sm text-muted-foreground animate-pulse">Loading your workspace...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-lg supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
-          {/* Logo and Brand */}
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg gradient-primary shadow-glow-sm">
-              <CheckSquare className="h-5 w-5 text-white" />
-            </div>
-            <div className="flex flex-col">
-              <h1 className="text-lg font-bold tracking-tight">
-                <span className="text-gradient">todoX</span>
-              </h1>
-              <p className="text-xs text-muted-foreground hidden sm:block">
-                Stay organized, stay productive
-              </p>
-            </div>
-          </div>
+    <div className="min-h-screen bg-background flex">
+      {/* Desktop Sidebar */}
+      <Sidebar className="hidden lg:flex fixed left-0 top-0 bottom-0 z-40" />
 
-          {/* Actions */}
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
+      {/* Mobile Sidebar Overlay */}
+      {isMobileMenuOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-background/80 backdrop-blur-sm z-40"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Mobile Sidebar */}
+      <div
+        className={cn(
+          "lg:hidden fixed left-0 top-0 bottom-0 z-50 transition-transform duration-300",
+          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        <Sidebar />
+      </div>
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col lg:ml-[260px] min-h-screen">
+        {/* Top Header */}
+        <header className="sticky top-0 z-30 w-full border-b border-border/50 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+          <div className="flex h-16 items-center justify-between px-4 lg:px-6">
+            {/* Mobile Menu Toggle */}
             <Button
               variant="ghost"
-              size="sm"
-              onClick={handleLogout}
-              className="gap-2 text-muted-foreground hover:text-foreground"
+              size="icon"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="lg:hidden"
             >
-              <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline">Logout</span>
+              {isMobileMenuOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
             </Button>
-          </div>
-        </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="container py-8 animate-fade-in flex-1">{children}</main>
-
-      {/* Footer */}
-      <footer className="border-t bg-card/50 mt-auto">
-        <div className="container py-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Left Section - Logo, Name & Description */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg gradient-primary shadow-glow-sm">
-                  <CheckSquare className="h-5 w-5 text-white" />
-                </div>
-                <h2 className="text-lg font-bold">
-                  <span className="text-gradient">todoX</span>
-                </h2>
-              </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Your ultimate task management solution. Stay organized, boost productivity,
-                and achieve your goals with our intuitive and powerful todo application.
+            {/* Welcome Text (Desktop) */}
+            <div className="hidden lg:block">
+              <p className="text-sm text-muted-foreground">
+                Welcome back! Let&apos;s get things done.
               </p>
             </div>
 
-            {/* Middle Section - Empty for spacing on desktop */}
-            <div className="hidden md:block" />
+            {/* Spacer for mobile */}
+            <div className="lg:hidden flex-1" />
 
-            {/* Right Section - Social Links */}
-            <div className="flex flex-col items-start md:items-end gap-4">
-              <h3 className="text-sm font-semibold">Connect With Us</h3>
+            {/* Actions */}
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="gap-2 text-muted-foreground hover:text-foreground"
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="hidden sm:inline">Logout</span>
+              </Button>
+            </div>
+          </div>
+        </header>
+
+        {/* Main Content */}
+        <main className="flex-1 p-4 lg:p-8 animate-fade-in">
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
+        </main>
+
+        {/* Footer */}
+        <footer className="border-t border-border/50 bg-card/30 backdrop-blur-sm">
+          <div className="px-4 lg:px-6 py-6">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              {/* Left - Brand */}
               <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl gradient-primary shadow-lg shadow-primary/20">
+                  <Sparkles className="h-4 w-4 text-white" />
+                </div>
+                <span className="text-sm font-bold text-gradient">todoX</span>
+              </div>
+
+              {/* Center - Copyright */}
+              <p className="text-xs text-muted-foreground">
+                © 2026 Built by Tafzeel® with ❤️
+              </p>
+
+              {/* Right - Social Links */}
+              <div className="flex items-center gap-1">
                 <a
                   href="https://linkedin.com/in/tafzeel-ahmed-khan-379510366"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted hover:bg-primary hover:text-white transition-all duration-200"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl hover:bg-muted transition-colors"
                   aria-label="LinkedIn"
                 >
-                  <Linkedin className="h-5 w-5" />
+                  <Linkedin className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
                 </a>
                 <a
                   href="https://github.com/Tafzeel99"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted hover:bg-primary hover:text-white transition-all duration-200"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl hover:bg-muted transition-colors"
                   aria-label="GitHub"
                 >
-                  <Github className="h-5 w-5" />
+                  <Github className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
                 </a>
                 <a
                   href="https://www.instagram.com/tafzeel._.here/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted hover:bg-primary hover:text-white transition-all duration-200"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl hover:bg-muted transition-colors"
                   aria-label="Instagram"
                 >
-                  <Instagram className="h-5 w-5" />
+                  <Instagram className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
                 </a>
               </div>
             </div>
           </div>
-
-          {/* Bottom Copyright */}
-          <div className="mt-8 pt-6 border-t border-border/50">
-            <p className="text-center text-sm text-muted-foreground">
-              Copyright © 2026, Built by Tafzeel® with ❤️
-            </p>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      </div>
     </div>
   );
 }
