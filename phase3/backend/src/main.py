@@ -75,15 +75,28 @@ async def chatkit_endpoint(
     This endpoint processes requests from the ChatKit frontend and returns
     responses in the ChatKit protocol format (Server-Sent Events for streaming).
     """
-    # Extract user_id from authorization header
-    user_id = "anonymous"
-    if authorization and authorization.startswith("Bearer "):
-        token = authorization.removeprefix("Bearer ")
-        try:
-            user_uuid = verify_token_from_header(token)
-            user_id = str(user_uuid)
-        except Exception:
-            pass
+    # Extract and verify user_id from authorization header (REQUIRED)
+    if not authorization or not authorization.startswith("Bearer "):
+        logger.error("❌ No authorization header provided")
+        from fastapi import HTTPException
+        raise HTTPException(
+            status_code=401,
+            detail="Authentication required. Please provide a valid JWT token."
+        )
+
+    token = authorization.removeprefix("Bearer ")
+    try:
+        user_uuid = verify_token_from_header(token)
+        user_id = str(user_uuid)
+        logger.info(f"✅ Token verified successfully, user_id: {user_id[:8]}...")
+    except Exception as e:
+        logger.error(f"❌ Token verification failed: {e}")
+        logger.error(f"   Token preview: {token[:20]}... (length: {len(token)})")
+        from fastapi import HTTPException
+        raise HTTPException(
+            status_code=401,
+            detail=f"Invalid or expired token: {str(e)}"
+        )
 
     # Get the ChatKit server
     chatkit_server = get_chatkit_server()
