@@ -5,7 +5,7 @@ A multi-phase hackathon project that evolves from a simple console application t
 ![Phase Status](https://img.shields.io/badge/Phase%20I-Complete-success)
 ![Phase Status](https://img.shields.io/badge/Phase%20II-Complete-success)
 ![Phase Status](https://img.shields.io/badge/Phase%20III-Complete-success)
-![Phase Status](https://img.shields.io/badge/Phase%20IV-Upcoming-yellow)
+![Phase Status](https://img.shields.io/badge/Phase%20IV-Complete-success)
 ![Phase Status](https://img.shields.io/badge/Phase%20V-Upcoming-yellow)
 
 ## Table of Contents
@@ -15,6 +15,7 @@ A multi-phase hackathon project that evolves from a simple console application t
 - [Phase I - Console Application](#phase-i---console-application)
 - [Phase II - Full-Stack Web Application](#phase-ii---full-stack-web-application)
 - [Phase III - AI Chatbot](#phase-iii---ai-chatbot)
+- [Phase IV - Kubernetes Deployment](#phase-iv---kubernetes-deployment)
 - [Quick Start](#quick-start)
 - [Project Structure](#project-structure)
 - [Tech Stack](#tech-stack)
@@ -31,7 +32,7 @@ This project demonstrates the evolution of a todo application through multiple p
 | **Phase I** | In-memory console app | Python | ✅ Complete |
 | **Phase II** | Full-stack web application | Next.js + FastAPI + Neon PostgreSQL | ✅ Complete |
 | **Phase III** | AI-powered chatbot | OpenRouter LLM + MCP Tools | ✅ Complete |
-| **Phase IV** | Containerized deployment | Docker + Minikube + Helm | ⏳ Upcoming |
+| **Phase IV** | Containerized deployment | Docker + Minikube + Helm | ✅ Complete |
 | **Phase V** | Cloud-native event-driven | AKS/GKE + Kafka + Dapr | ⏳ Upcoming |
 
 ---
@@ -39,13 +40,13 @@ This project demonstrates the evolution of a todo application through multiple p
 ## Architecture Evolution
 
 ```
-Phase I (Console)          Phase II (Web)              Phase III (AI)
-┌─────────────────┐    ┌─────────────────────┐    ┌─────────────────────┐
-│  Python CLI     │    │  Next.js Frontend   │    │  AI Chat Interface  │
-│  In-Memory Data │ →  │  FastAPI Backend    │ →  │  MCP Tools Server   │
-│                 │    │  Neon PostgreSQL    │    │  Smart Suggestions  │
-│                 │    │  Better Auth        │    │  Natural Language   │
-└─────────────────┘    └─────────────────────┘    └─────────────────────┘
+Phase I (Console)          Phase II (Web)              Phase III (AI)              Phase IV (K8s)
+┌─────────────────┐    ┌─────────────────────┐    ┌─────────────────────┐    ┌─────────────────────┐
+│  Python CLI     │    │  Next.js Frontend   │    │  AI Chat Interface  │    │  Docker Containers  │
+│  In-Memory Data │ →  │  FastAPI Backend    │ →  │  MCP Tools Server   │ →  │  Minikube/K8s       │
+│                 │    │  Neon PostgreSQL    │    │  Smart Suggestions  │    │  Helm Charts        │
+│                 │    │  Better Auth        │    │  Natural Language   │    │  NodePort Services  │
+└─────────────────┘    └─────────────────────┘    └─────────────────────┘    └─────────────────────┘
 ```
 
 ---
@@ -320,6 +321,192 @@ CORS_ORIGINS=["http://localhost:3000"]
 
 ---
 
+## Phase IV - Kubernetes Deployment
+
+Production-ready containerized deployment using Docker, Kubernetes, and Helm.
+
+### Containerization Features
+
+#### Docker Images
+| Component | Description |
+|-----------|-------------|
+| **Backend Image** | Multi-stage Python 3.13 build with UV package manager |
+| **Frontend Image** | Multi-stage Node.js build with Next.js standalone output |
+| **Optimized Size** | Backend: 339MB, Frontend: 410MB |
+| **Security** | Non-root users, minimal attack surface |
+| **Health Checks** | Liveness and readiness probes configured |
+
+#### Kubernetes Resources
+| Resource | Description |
+|----------|-------------|
+| **Deployments** | Backend and frontend deployments with replica management |
+| **Services** | NodePort services for external access |
+| **ConfigMaps** | Environment configuration for both services |
+| **Secrets** | Secure storage for API keys and sensitive data |
+| **Health Probes** | HTTP-based health checks with configurable delays |
+
+### Deployment Options
+
+#### Option 1: Docker Compose (Development)
+```bash
+cd phase4
+docker-compose up -d
+
+# Access:
+# Frontend: http://127.0.0.1:3000
+# Backend: http://127.0.0.1:8000/docs
+```
+
+#### Option 2: Kubernetes/Minikube (Production-like)
+```bash
+# 1. Start Minikube
+minikube start
+
+# 2. Load images
+minikube image load todo-backend:4.0.0
+minikube image load todo-frontend:4.0.0
+
+# 3. Deploy with Helm
+cd phase4/todo-app
+helm install todo-app .
+
+# 4. Wait for pods
+kubectl wait --for=condition=ready pod -l app.kubernetes.io/instance=todo-app --timeout=300s
+
+# 5. Port forwarding (for ChatKit)
+kubectl port-forward svc/todo-app-frontend 3000:3000 &
+kubectl port-forward svc/todo-app-backend 8000:8000 &
+
+# Access:
+# Frontend: http://127.0.0.1:3000
+# Chat: http://127.0.0.1:3000/chat
+# Backend: http://127.0.0.1:8000/docs
+```
+
+### Architecture
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                      Kubernetes Cluster                       │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │              Helm Chart: todo-app v4.0.0               │  │
+│  └────────────────────────────────────────────────────────┘  │
+│                                                               │
+│  ┌─────────────────────────┐  ┌──────────────────────────┐  │
+│  │  Frontend Deployment    │  │  Backend Deployment      │  │
+│  │  ┌──────────────────┐   │  │  ┌───────────────────┐  │  │
+│  │  │ todo-frontend    │   │  │  │ todo-backend      │  │  │
+│  │  │ :4.0.0           │   │  │  │ :4.0.0            │  │  │
+│  │  │ Port: 3000       │   │  │  │ Port: 8000        │  │  │
+│  │  └──────────────────┘   │  │  └───────────────────┘  │  │
+│  └─────────┬───────────────┘  └──────────┬───────────────┘  │
+│            │                              │                   │
+│  ┌─────────▼───────────────┐  ┌──────────▼───────────────┐  │
+│  │  frontend-service       │  │  backend-service         │  │
+│  │  NodePort: 30030        │  │  NodePort: 30080         │  │
+│  └─────────────────────────┘  └──────────────────────────┘  │
+└──────────────────────────────────────────────────────────────┘
+                       │
+                       ▼
+              Port Forwarding (127.0.0.1)
+              - Frontend: :3000
+              - Backend: :8000
+```
+
+### How to Build Images
+
+```bash
+# Backend
+cd phase4/backend
+docker build -t todo-backend:4.0.0 .
+
+# Frontend (with ChatKit domain key)
+cd phase4/frontend
+docker build \
+  --build-arg NEXT_PUBLIC_API_URL=http://127.0.0.1:8000 \
+  --build-arg NEXT_PUBLIC_OPENAI_DOMAIN_KEY=your_domain_key \
+  -t todo-frontend:4.0.0 .
+```
+
+### How to Run with Docker
+
+```bash
+# Backend
+docker run -d \
+  -p 8000:8000 \
+  -e DATABASE_URL="sqlite+aiosqlite:///./todo_app.db" \
+  -e OPEN_ROUTER_KEY="your_key" \
+  --name todo-backend \
+  todo-backend:4.0.0
+
+# Frontend
+docker run -d \
+  -p 3000:3000 \
+  --name todo-frontend \
+  todo-frontend:4.0.0
+```
+
+### Helm Chart Configuration
+
+**Key Values** (`phase4/todo-app/values.yaml`):
+
+```yaml
+backend:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: todo-backend
+    tag: "4.0.0"
+    pullPolicy: Never  # For local Minikube
+  service:
+    type: NodePort
+    port: 8000
+    nodePort: 30080
+
+frontend:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: todo-frontend
+    tag: "4.0.0"
+    pullPolicy: Never
+  service:
+    type: NodePort
+    port: 3000
+    nodePort: 30030
+```
+
+### Management Commands
+
+```bash
+# View deployment status
+kubectl get all -l app.kubernetes.io/instance=todo-app
+
+# View logs
+kubectl logs -l app.kubernetes.io/component=backend -f
+kubectl logs -l app.kubernetes.io/component=frontend -f
+
+# Scale deployments
+kubectl scale deployment todo-app-backend --replicas=3
+
+# Upgrade deployment
+helm upgrade todo-app .
+
+# Rollback
+helm rollback todo-app
+
+# Uninstall
+helm uninstall todo-app
+```
+
+### Documentation
+
+- **QUICK_START.md** - 5-command deployment guide
+- **DEPLOYMENT_GUIDE.md** - Comprehensive deployment instructions
+- **RUNNING_CONTAINERS.md** - Container management guide
+
+---
+
 ## Quick Start
 
 ### Prerequisites
@@ -413,6 +600,20 @@ HACKATHON-TODO-APP/
 │           │   └── context_manager.py    # Conversation context
 │           └── models/        # Chat models
 │
+├── phase4/                     # Kubernetes Deployment
+│   ├── backend/               # Unified backend (Phase 2+3)
+│   │   ├── Dockerfile         # Backend container image
+│   │   └── src/               # Combined backend source
+│   ├── frontend/              # Next.js frontend
+│   │   ├── Dockerfile         # Frontend container image
+│   │   └── src/               # Frontend source
+│   └── todo-app/              # Helm chart
+│       ├── Chart.yaml         # Helm chart metadata
+│       ├── values.yaml        # Configuration values
+│       ├── templates/         # K8s manifests
+│       ├── DEPLOYMENT_GUIDE.md    # Full deployment guide
+│       └── QUICK_START.md         # Quick deployment steps
+│
 ├── specs/                      # Specifications (SDD)
 │   ├── phase1/
 │   ├── phase2/
@@ -458,14 +659,24 @@ HACKATHON-TODO-APP/
 - **GPT-4o-mini** - Primary model for chat
 - **MCP Protocol** - Tool calling standard
 
+### Container & Orchestration
+- **Docker** - Container runtime
+- **Docker Compose** - Multi-container orchestration
+- **Kubernetes** - Container orchestration platform
+- **Minikube** - Local Kubernetes cluster
+- **Helm** - Kubernetes package manager
+- **kubectl** - Kubernetes CLI
+
 ---
 
 ## API Documentation
 
 When the backend is running, access the interactive API docs:
 
-- **Phase 2 Backend**: http://localhost:8000/docs
-- **Phase 3 AI Backend**: http://localhost:8001/docs
+- **Local Development**: http://localhost:8000/docs
+- **Docker Containers**: http://127.0.0.1:8000/docs
+- **Kubernetes (NodePort)**: http://<MINIKUBE-IP>:30080/docs
+- **Kubernetes (Port Forward)**: http://127.0.0.1:8000/docs
 
 ---
 

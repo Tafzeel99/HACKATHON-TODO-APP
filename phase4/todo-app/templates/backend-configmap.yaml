@@ -1,0 +1,17 @@
+{{- if .Values.backend.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "todo-app.fullname" . }}-backend-config
+  labels:
+    {{- include "todo-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+data:
+  BETTER_AUTH_SECRET: {{ .Values.backend.env.BETTER_AUTH_SECRET | quote }}
+  BETTER_AUTH_URL: {{ .Values.backend.env.BETTER_AUTH_URL | quote }}
+  LLM_BASE_URL: {{ .Values.backend.env.LLM_BASE_URL | quote }}
+  LLM_MODEL: {{ .Values.backend.env.LLM_MODEL | quote }}
+  CORS_ORIGINS: {{ .Values.backend.env.CORS_ORIGINS | quote }}
+  RATE_LIMIT_REQUESTS: {{ .Values.backend.env.RATE_LIMIT_REQUESTS | quote }}
+  RATE_LIMIT_WINDOW_SECONDS: {{ .Values.backend.env.RATE_LIMIT_WINDOW_SECONDS | quote }}
+{{- end }}

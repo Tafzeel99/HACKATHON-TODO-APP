@@ -5,11 +5,11 @@ import asyncio
 import sys
 import os
 
-# Add the backend src directory to the path so we can import modules
-backend_src_path = os.path.join(os.path.dirname(__file__), "backend", "src")
-sys.path.insert(0, backend_src_path)
-
+# Import the tool registry to test the tools
 from src.mcp.server import get_tool_registry
+
+# Import tools to register them
+from src.mcp.tools import add_task, list_tasks, complete_task, delete_task, update_task
 
 
 async def test_mcp_tools():
