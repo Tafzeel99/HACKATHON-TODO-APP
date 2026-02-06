@@ -18,7 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ProjectForm } from "@/components/projects/project-form";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
 // Mock data

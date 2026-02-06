@@ -60,11 +60,11 @@ export function ShareDialog({
       });
       setEmail("");
       onSharesChange?.();
-    } catch (error: any) {
+    } catch (error) {
       toast({
         variant: "destructive",
         title: "Failed to share",
-        description: error.message || "Could not share task",
+        description: error instanceof Error ? error.message : "Could not share task",
       });
     } finally {
       setIsLoading(false);
@@ -80,11 +80,11 @@ export function ShareDialog({
         description: "Access has been revoked",
       });
       onSharesChange?.();
-    } catch (error: any) {
+    } catch (error) {
       toast({
         variant: "destructive",
         title: "Failed to remove share",
-        description: error.message || "Could not remove share",
+        description: error instanceof Error ? error.message : "Could not remove share",
       });
     } finally {
       setRemovingId(null);

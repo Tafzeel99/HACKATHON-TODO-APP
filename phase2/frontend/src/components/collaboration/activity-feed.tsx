@@ -34,8 +34,8 @@ export function ActivityFeed({
           ? await activityApi.getTaskActivities(taskId, limit)
           : await activityApi.getActivities(limit);
         setActivities(response.activities);
-      } catch (err: any) {
-        setError(err.message || "Failed to load activities");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load activities");
       } finally {
         setIsLoading(false);
       }

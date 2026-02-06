@@ -224,7 +224,7 @@ function NotificationSettings() {
               className="w-32"
             />
             <p className="text-xs text-muted-foreground">
-              We'll send your daily digest at this time
+              We&apos;ll send your daily digest at this time
             </p>
           </div>
         )}

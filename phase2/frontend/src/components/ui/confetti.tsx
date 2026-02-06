@@ -24,7 +24,8 @@ export function setConfettiEnabled(enabled: boolean) {
 }
 
 // Singleton pattern - load canvas-confetti only once
-let confettiModule: typeof import("canvas-confetti").default | null = null;
+type ConfettiFunction = (options?: ConfettiOptions) => Promise<undefined> | null;
+let confettiModule: ConfettiFunction | null = null;
 let loadingPromise: Promise<void> | null = null;
 
 async function loadConfetti() {
