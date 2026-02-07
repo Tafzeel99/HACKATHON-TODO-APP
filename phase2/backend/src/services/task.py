@@ -215,7 +215,17 @@ class TaskService:
         return task
 
     async def delete(self, task: Task) -> None:
-        """Delete a task."""
+        """Delete a task (orphan any child tasks by removing parent reference)."""
+        from sqlalchemy import select as sql_select, update
+
+        # Remove parent reference from any child tasks (orphan them)
+        await self.session.execute(
+            update(Task)
+            .where(Task.parent_task_id == task.id)
+            .values(parent_task_id=None)
+        )
+
+        # Now delete the task
         await self.session.delete(task)
         await self.session.commit()
 
