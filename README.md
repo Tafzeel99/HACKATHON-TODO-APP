@@ -8,18 +8,31 @@ A multi-phase hackathon project that evolves from a simple console application t
 ![Phase Status](https://img.shields.io/badge/Phase%20IV-Complete-success)
 ![Phase Status](https://img.shields.io/badge/Phase%20V-Upcoming-yellow)
 
+## 🚀 Live Demo
+
+- **Frontend**: [https://hackathon-todox.vercel.app](https://hackathon-todox.vercel.app)
+- **Phase 2 API**: [https://tafzeel99-todo-app-phase2.hf.space/docs](https://tafzeel99-todo-app-phase2.hf.space/docs)
+- **Phase 3 AI Chatbot**: [https://tafzeel99-todo-app-phase3.hf.space/docs](https://tafzeel99-todo-app-phase3.hf.space/docs)
+
+**Try it now!** → Sign up and start managing your tasks with AI assistance.
+
 ## Table of Contents
 
+- [Live Demo](#-live-demo)
 - [Overview](#overview)
 - [Architecture Evolution](#architecture-evolution)
 - [Phase I - Console Application](#phase-i---console-application)
 - [Phase II - Full-Stack Web Application](#phase-ii---full-stack-web-application)
 - [Phase III - AI Chatbot](#phase-iii---ai-chatbot)
 - [Phase IV - Kubernetes Deployment](#phase-iv---kubernetes-deployment)
+- [Production Deployment](#-production-deployment)
 - [Quick Start](#quick-start)
 - [Project Structure](#project-structure)
 - [Tech Stack](#tech-stack)
+- [API Documentation](#api-documentation)
+- [Troubleshooting](#-troubleshooting)
 - [Contributing](#contributing)
+- [License](#license)
 
 ---
 
@@ -150,37 +163,7 @@ A modern, responsive web application with rich features for task management.
 | **Protected Routes** | Secure API endpoints |
 | **User Isolation** | Data segregated by user |
 
-### How to Run
 
-```bash
-# Terminal 1: Backend
-cd phase2/backend
-pip install -e .
-uvicorn src.main:app --reload --port 8000
-
-# Terminal 2: Frontend
-cd phase2/frontend
-npm install
-npm run dev
-```
-
-Access the app at: http://localhost:3000
-
-### Environment Variables
-
-**phase2/backend/.env:**
-```env
-DATABASE_URL=postgresql://user:pass@host/db
-BETTER_AUTH_SECRET=your_secret_key
-CORS_ORIGINS=["http://localhost:3000"]
-SENDGRID_API_KEY=your_sendgrid_key  # Optional for email reminders
-```
-
-**phase2/frontend/.env.local:**
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8000
-NEXT_PUBLIC_BETTER_AUTH_URL=http://localhost:8000
-```
 
 ---
 
@@ -222,69 +205,55 @@ An AI-powered chatbot for managing todos through natural language conversation.
 | **Priority Suggestions** | Recommend task priorities |
 | **Auto-Categorization** | Suggest categories based on content |
 
-### Example Conversations
-
-```
-User: Add a task to review the project proposal by Friday
-AI: ✅ Created task "Review the project proposal"
-    Due: Friday, January 31st
-    Priority: Medium
-
-User: Show my high priority tasks
-AI: Here are your high priority tasks:
-    1. Complete quarterly report - Due tomorrow
-    2. Client presentation prep - Due Jan 30
-    3. Review budget allocation - Due Feb 1
-
-User: Mark the quarterly report as complete
-AI: ✅ Great job! "Complete quarterly report" is now complete!
-    You've completed 5 tasks this week!
-
-User: What should I work on next?
-AI: Based on your workload, I suggest:
-    📌 "Client presentation prep" - Due soon, high priority
-    💡 You have 3 hours free this afternoon
-    ⚠️ "Review budget" conflicts with your meeting at 2pm
-```
 
 ### Architecture
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                  Phase 2 Frontend                        │
-│              (Next.js + ChatKit UI)                      │
-│                    /chat route                           │
-└─────────────────────┬───────────────────────────────────┘
-                      │ HTTP + JWT
-                      ▼
-┌─────────────────────────────────────────────────────────┐
-│                  Phase 3 Backend                         │
-│                    (FastAPI)                             │
-│  ┌─────────────────────────────────────────────────┐    │
-│  │           ChatKit Server (SSE)                   │    │
-│  └─────────────────────┬───────────────────────────┘    │
-│                        ▼                                 │
-│  ┌─────────────────────────────────────────────────┐    │
-│  │         Agent Service (OpenRouter LLM)           │    │
-│  │              gpt-4o-mini                          │    │
-│  └─────────────────────┬───────────────────────────┘    │
-│                        ▼                                 │
-│  ┌─────────────────────────────────────────────────┐    │
-│  │            MCP Server (10 Tools)                 │    │
-│  └─────────────────────┬───────────────────────────┘    │
-│                        ▼                                 │
-│  ┌─────────────────────────────────────────────────┐    │
-│  │     Smart Suggestions Service                    │    │
-│  │   • Time Estimation    • Conflict Detection      │    │
-│  │   • Workload Analysis  • Habit Tracking          │    │
-│  └─────────────────────────────────────────────────┘    │
-└─────────────────────┬───────────────────────────────────┘
-                      │
-                      ▼
-┌─────────────────────────────────────────────────────────┐
-│              Neon PostgreSQL                             │
-│           (Shared with Phase 2)                          │
-└─────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│              Vercel (Frontend Deployment)                 │
+│           https://hackathon-todox.vercel.app              │
+│              Next.js 16 + ChatKit UI                      │
+│                    /chat route                            │
+└────────────────────┬──────────────────┬──────────────────┘
+                     │                  │
+            JWT Auth │                  │ API Calls
+                     ▼                  ▼
+┌──────────────────────────┐  ┌────────────────────────────┐
+│  Hugging Face Space      │  │  Hugging Face Space        │
+│  Phase 2 Backend         │  │  Phase 3 AI Chatbot        │
+│  (REST API)              │  │  (ChatKit + MCP)           │
+│  Port 7860               │  │  Port 7860                 │
+│  ┌────────────────────┐  │  │  ┌──────────────────────┐  │
+│  │ FastAPI            │  │  │  │ ChatKit Server (SSE) │  │
+│  │ Better Auth JWT    │  │  │  └──────────┬───────────┘  │
+│  │ Task CRUD          │  │  │             ▼              │
+│  │ Projects           │  │  │  ┌──────────────────────┐  │
+│  │ Collaboration      │  │  │  │ Agent Service        │  │
+│  │ Email Reminders    │  │  │  │ OpenRouter LLM       │  │
+│  └────────────────────┘  │  │  │ Gemini 2.0 Flash     │  │
+└────────────┬─────────────┘  │  └──────────┬───────────┘  │
+             │                │             ▼              │
+             │                │  ┌──────────────────────┐  │
+             │                │  │ MCP Server (10 Tools)│  │
+             │                │  │ • add_task           │  │
+             │                │  │ • list_tasks         │  │
+             │                │  │ • complete_task      │  │
+             │                │  │ • delete_task        │  │
+             │                │  │ • update_task        │  │
+             │                │  │ • assign_task        │  │
+             │                │  │ • share_task         │  │
+             │                │  │ • add_comment        │  │
+             │                │  │ • get_analytics      │  │
+             │                │  │ • get_suggestions    │  │
+             │                │  └──────────────────────┘  │
+             └────────────────┴───────────┬────────────────┘
+                                          │
+                                          ▼
+             ┌──────────────────────────────────────────────┐
+             │         Neon PostgreSQL (Serverless)         │
+             │              Shared Database                 │
+             │         us-east-2.aws.neon.tech              │
+             └──────────────────────────────────────────────┘
 ```
 
 ### How to Run
@@ -314,7 +283,11 @@ Access the chat at: http://localhost:3000/chat
 DATABASE_URL=postgresql://user:pass@host/db
 OPEN_ROUTER_KEY=your_openrouter_api_key
 LLM_BASE_URL=https://openrouter.ai/api/v1
-LLM_MODEL=openai/gpt-4o-mini
+LLM_MODEL=google/gemini-2.0-flash-exp:free
+# Alternative free models:
+# LLM_MODEL=openrouter/free  (auto-selects best free model)
+# LLM_MODEL=meta-llama/llama-3.3-70b-instruct:free
+# LLM_MODEL=deepseek/deepseek-chat:free
 BETTER_AUTH_SECRET=your_secret_key
 CORS_ORIGINS=["http://localhost:3000"]
 ```
@@ -507,6 +480,125 @@ helm uninstall todo-app
 
 ---
 
+## 🌐 Production Deployment
+
+The application is deployed and running on cloud platforms:
+
+### Deployment Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Vercel (Frontend)                     │
+│              https://hackathon-todox.vercel.app          │
+│                     Next.js 16 + React                   │
+└─────────────────┬────────────────────┬──────────────────┘
+                  │                    │
+         JWT Auth │                    │ API Calls
+                  │                    │
+    ┌─────────────▼──────────┐  ┌─────▼──────────────────┐
+    │  Hugging Face Space    │  │  Hugging Face Space    │
+    │   Phase 2 Backend      │  │   Phase 3 AI Chatbot   │
+    │   (REST API)           │  │   (ChatKit + MCP)      │
+    │   Port: 7860           │  │   Port: 7860           │
+    └────────────┬───────────┘  └────────┬───────────────┘
+                 │                       │
+                 └───────────┬───────────┘
+                             │
+                    ┌────────▼─────────┐
+                    │ Neon PostgreSQL  │
+                    │  (Serverless)    │
+                    └──────────────────┘
+```
+
+### Deployment Details
+
+#### Frontend (Vercel)
+- **Platform**: Vercel
+- **URL**: https://hackathon-todox.vercel.app
+- **Framework**: Next.js 16 with App Router
+- **Build**: Automatic deployment on git push
+- **Features**:
+  - Server-Side Rendering (SSR)
+  - Static Site Generation (SSG)
+  - Edge Functions
+  - Automatic HTTPS
+
+#### Phase 2 Backend (Hugging Face Spaces)
+- **Platform**: Hugging Face Spaces (Docker SDK)
+- **URL**: https://tafzeel99-todo-app-phase2.hf.space
+- **API Docs**: https://tafzeel99-todo-app-phase2.hf.space/docs
+- **Port**: 7860
+- **Features**:
+  - FastAPI REST API
+  - JWT Authentication (Better Auth)
+  - Task CRUD operations
+  - Project & collaboration features
+  - Email reminders (SendGrid)
+  - Database migrations (Alembic)
+
+#### Phase 3 AI Backend (Hugging Face Spaces)
+- **Platform**: Hugging Face Spaces (Docker SDK)
+- **URL**: https://tafzeel99-todo-app-phase3.hf.space
+- **API Docs**: https://tafzeel99-todo-app-phase3.hf.space/docs
+- **Port**: 7860
+- **Model**: Google Gemini 2.0 Flash (Free) via OpenRouter
+- **Features**:
+  - AI-powered chat interface (ChatKit)
+  - Natural language task management
+  - 10 MCP tools for task operations
+  - Smart suggestions & analytics
+  - Multi-language support (English, Urdu)
+
+#### Database (Neon PostgreSQL)
+- **Platform**: Neon (Serverless PostgreSQL)
+- **Type**: PostgreSQL with pgvector extension
+- **Features**:
+  - Serverless autoscaling
+  - Automatic backups
+  - Connection pooling
+  - SSL/TLS encryption
+
+### Environment Configuration
+
+#### Production Environment Variables
+
+**Vercel (Frontend):**
+```env
+NEXT_PUBLIC_API_URL=https://tafzeel99-todo-app-phase2.hf.space
+NEXT_PUBLIC_CHAT_API_URL=https://tafzeel99-todo-app-phase3.hf.space
+NEXT_PUBLIC_BETTER_AUTH_URL=https://hackathon-todox.vercel.app
+NEXT_PUBLIC_OPENAI_DOMAIN_KEY=domain_pk_xxxxxx
+```
+
+**Hugging Face - Phase 2 Backend:**
+```env
+DATABASE_URL=postgresql://user:password@ep-xxx.us-east-2.aws.neon.tech/dbname?sslmode=require
+BETTER_AUTH_SECRET=your-secret-key-minimum-32-characters
+BETTER_AUTH_URL=https://hackathon-todox.vercel.app
+CORS_ORIGINS=["https://hackathon-todox.vercel.app"]
+ENVIRONMENT=production
+JWT_ALGORITHM=HS256
+JWT_EXPIRATION_DAYS=7
+```
+
+**Hugging Face - Phase 3 AI Backend:**
+```env
+DATABASE_URL=postgresql://user:password@ep-xxx.us-east-2.aws.neon.tech/dbname?sslmode=require
+OPEN_ROUTER_KEY=sk-or-v1-your-key-here
+LLM_BASE_URL=https://openrouter.ai/api/v1
+LLM_MODEL=google/gemini-2.0-flash-exp:free
+BETTER_AUTH_SECRET=your-secret-key-minimum-32-characters
+BETTER_AUTH_URL=https://hackathon-todox.vercel.app
+CORS_ORIGINS=["https://hackathon-todox.vercel.app"]
+ENVIRONMENT=production
+RATE_LIMIT_REQUESTS=100
+RATE_LIMIT_WINDOW_SECONDS=60
+```
+
+**⚠️ Important**: `BETTER_AUTH_SECRET` must be **IDENTICAL** in both Phase 2 and Phase 3 backends for JWT verification to work.
+
+---
+
 ## Quick Start
 
 ### Prerequisites
@@ -655,9 +747,14 @@ HACKATHON-TODO-APP/
 - **SQLite** - Local development option
 
 ### AI/ML
-- **OpenRouter API** - Multi-model LLM access
-- **GPT-4o-mini** - Primary model for chat
-- **MCP Protocol** - Tool calling standard
+- **OpenRouter API** - Multi-model LLM gateway with 18+ free models
+- **Google Gemini 2.0 Flash** - Primary model for chat (1M tokens context, free)
+- **Alternative Free Models**:
+  - Meta Llama 3.3 70B (GPT-4 level performance)
+  - DeepSeek V3 (strong reasoning)
+  - Mistral Small 3.1 24B
+- **MCP Protocol** - Model Context Protocol for tool calling
+- **ChatKit** - OpenAI ChatKit for beautiful chat UI
 
 ### Container & Orchestration
 - **Docker** - Container runtime
@@ -677,6 +774,97 @@ When the backend is running, access the interactive API docs:
 - **Docker Containers**: http://127.0.0.1:8000/docs
 - **Kubernetes (NodePort)**: http://<MINIKUBE-IP>:30080/docs
 - **Kubernetes (Port Forward)**: http://127.0.0.1:8000/docs
+
+---
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+#### 1. AI Chatbot Returns "401 Unauthorized"
+
+**Problem**: Token verification failed between Phase 2 and Phase 3 backends.
+
+**Solution**: Ensure `BETTER_AUTH_SECRET` is **identical** in both backends:
+```bash
+# Phase 2 Backend (Hugging Face)
+BETTER_AUTH_SECRET=your-exact-secret-here
+
+# Phase 3 Backend (Hugging Face)
+BETTER_AUTH_SECRET=your-exact-secret-here  # Must match!
+```
+
+#### 2. Task Deletion Fails with Foreign Key Error
+
+**Problem**: Trying to delete a task that has subtasks or is referenced by other tasks.
+
+**Solution**: Fixed in latest deployment. The backend now automatically orphans child tasks before deletion.
+
+#### 3. CORS Errors in Production
+
+**Problem**: Frontend can't connect to backend APIs.
+
+**Solution**: Update `CORS_ORIGINS` in backend to include your frontend URL:
+```env
+CORS_ORIGINS=["https://your-frontend-url.vercel.app"]
+```
+
+#### 4. ChatKit Not Loading
+
+**Problem**: Missing or invalid OpenAI domain key.
+
+**Solution**:
+1. Go to https://platform.openai.com/settings/organization/security/domain-allowlist
+2. Add your domain (e.g., hackathon-todox.vercel.app)
+3. Copy the domain key
+4. Add to Vercel environment variables:
+   ```
+   NEXT_PUBLIC_OPENAI_DOMAIN_KEY=domain_pk_xxxxxx
+   ```
+
+#### 5. Database Connection Errors
+
+**Problem**: Backend can't connect to Neon PostgreSQL.
+
+**Solution**:
+- Ensure `DATABASE_URL` is a single line with no extra newlines/spaces
+- Check Neon PostgreSQL connection string format:
+  ```
+  postgresql://user:pass@host/dbname?sslmode=require
+  ```
+- Verify Neon database is not suspended (free tier may pause after inactivity)
+
+#### 6. OpenRouter Rate Limits
+
+**Problem**: "Rate limit exceeded" errors in AI chat.
+
+**Solution**:
+- Free tier limit: 50 requests/day, 20 requests/minute
+- Use `openrouter/free` model to auto-select available free models
+- Consider upgrading OpenRouter plan for production use
+
+### Debug Mode
+
+Enable detailed logging in backends:
+
+**Phase 2 Backend:**
+```env
+LOG_LEVEL=DEBUG
+```
+
+**Phase 3 Backend:**
+```env
+LOG_LEVEL=DEBUG
+AGENT_MAX_TOKENS=2000
+```
+
+### Getting Help
+
+- **Issues**: https://github.com/Tafzeel99/HACKATHON-TODO-APP/issues
+- **Logs**: Check Hugging Face Space logs or Vercel deployment logs
+- **API Docs**:
+  - Phase 2: https://tafzeel99-todo-app-phase2.hf.space/docs
+  - Phase 3: https://tafzeel99-todo-app-phase3.hf.space/docs
 
 ---
 
