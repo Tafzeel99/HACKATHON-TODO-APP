@@ -8,18 +8,26 @@ A multi-phase hackathon project that evolves from a simple console application t
 ![Phase Status](https://img.shields.io/badge/Phase%20IV-Complete-success)
 ![Phase Status](https://img.shields.io/badge/Phase%20V-Upcoming-yellow)
 
+## 🚀 Live Demo
+
+- **Frontend**: [https://hackathon-todox.vercel.app](https://hackathon-todox.vercel.app)
+- **Phase 2 API**: [https://tafzeel99-todo-app-phase2.hf.space/docs](https://tafzeel99-todo-app-phase2.hf.space/docs)
+- **Phase 3 AI Chatbot**: [https://tafzeel99-todo-app-phase3.hf.space/docs](https://tafzeel99-todo-app-phase3.hf.space/docs)
+
+**Try it now!** → Sign up and start managing your tasks with AI assistance.
+
 ## Table of Contents
 
+- [Live Demo](#-live-demo)
 - [Overview](#overview)
 - [Architecture Evolution](#architecture-evolution)
 - [Phase I - Console Application](#phase-i---console-application)
 - [Phase II - Full-Stack Web Application](#phase-ii---full-stack-web-application)
 - [Phase III - AI Chatbot](#phase-iii---ai-chatbot)
 - [Phase IV - Kubernetes Deployment](#phase-iv---kubernetes-deployment)
-- [Quick Start](#quick-start)
-- [Project Structure](#project-structure)
+- [Production Deployment](#-production-deployment)
 - [Tech Stack](#tech-stack)
-- [Contributing](#contributing)
+- [API Documentation](#api-documentation)
 
 ---
 
@@ -150,37 +158,7 @@ A modern, responsive web application with rich features for task management.
 | **Protected Routes** | Secure API endpoints |
 | **User Isolation** | Data segregated by user |
 
-### How to Run
 
-```bash
-# Terminal 1: Backend
-cd phase2/backend
-pip install -e .
-uvicorn src.main:app --reload --port 8000
-
-# Terminal 2: Frontend
-cd phase2/frontend
-npm install
-npm run dev
-```
-
-Access the app at: http://localhost:3000
-
-### Environment Variables
-
-**phase2/backend/.env:**
-```env
-DATABASE_URL=postgresql://user:pass@host/db
-BETTER_AUTH_SECRET=your_secret_key
-CORS_ORIGINS=["http://localhost:3000"]
-SENDGRID_API_KEY=your_sendgrid_key  # Optional for email reminders
-```
-
-**phase2/frontend/.env.local:**
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8000
-NEXT_PUBLIC_BETTER_AUTH_URL=http://localhost:8000
-```
 
 ---
 
@@ -222,102 +200,57 @@ An AI-powered chatbot for managing todos through natural language conversation.
 | **Priority Suggestions** | Recommend task priorities |
 | **Auto-Categorization** | Suggest categories based on content |
 
-### Example Conversations
-
-```
-User: Add a task to review the project proposal by Friday
-AI: ✅ Created task "Review the project proposal"
-    Due: Friday, January 31st
-    Priority: Medium
-
-User: Show my high priority tasks
-AI: Here are your high priority tasks:
-    1. Complete quarterly report - Due tomorrow
-    2. Client presentation prep - Due Jan 30
-    3. Review budget allocation - Due Feb 1
-
-User: Mark the quarterly report as complete
-AI: ✅ Great job! "Complete quarterly report" is now complete!
-    You've completed 5 tasks this week!
-
-User: What should I work on next?
-AI: Based on your workload, I suggest:
-    📌 "Client presentation prep" - Due soon, high priority
-    💡 You have 3 hours free this afternoon
-    ⚠️ "Review budget" conflicts with your meeting at 2pm
-```
 
 ### Architecture
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                  Phase 2 Frontend                        │
-│              (Next.js + ChatKit UI)                      │
-│                    /chat route                           │
-└─────────────────────┬───────────────────────────────────┘
-                      │ HTTP + JWT
-                      ▼
-┌─────────────────────────────────────────────────────────┐
-│                  Phase 3 Backend                         │
-│                    (FastAPI)                             │
-│  ┌─────────────────────────────────────────────────┐    │
-│  │           ChatKit Server (SSE)                   │    │
-│  └─────────────────────┬───────────────────────────┘    │
-│                        ▼                                 │
-│  ┌─────────────────────────────────────────────────┐    │
-│  │         Agent Service (OpenRouter LLM)           │    │
-│  │              gpt-4o-mini                          │    │
-│  └─────────────────────┬───────────────────────────┘    │
-│                        ▼                                 │
-│  ┌─────────────────────────────────────────────────┐    │
-│  │            MCP Server (10 Tools)                 │    │
-│  └─────────────────────┬───────────────────────────┘    │
-│                        ▼                                 │
-│  ┌─────────────────────────────────────────────────┐    │
-│  │     Smart Suggestions Service                    │    │
-│  │   • Time Estimation    • Conflict Detection      │    │
-│  │   • Workload Analysis  • Habit Tracking          │    │
-│  └─────────────────────────────────────────────────┘    │
-└─────────────────────┬───────────────────────────────────┘
-                      │
-                      ▼
-┌─────────────────────────────────────────────────────────┐
-│              Neon PostgreSQL                             │
-│           (Shared with Phase 2)                          │
-└─────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│              Vercel (Frontend Deployment)                 │
+│           https://hackathon-todox.vercel.app              │
+│              Next.js 16 + ChatKit UI                      │
+│                    /chat route                            │
+└────────────────────┬──────────────────┬──────────────────┘
+                     │                  │
+            JWT Auth │                  │ API Calls
+                     ▼                  ▼
+┌──────────────────────────┐  ┌────────────────────────────┐
+│  Hugging Face Space      │  │  Hugging Face Space        │
+│  Phase 2 Backend         │  │  Phase 3 AI Chatbot        │
+│  (REST API)              │  │  (ChatKit + MCP)           │
+│  Port 7860               │  │  Port 7860                 │
+│  ┌────────────────────┐  │  │  ┌──────────────────────┐  │
+│  │ FastAPI            │  │  │  │ ChatKit Server (SSE) │  │
+│  │ Better Auth JWT    │  │  │  └──────────┬───────────┘  │
+│  │ Task CRUD          │  │  │             ▼              │
+│  │ Projects           │  │  │  ┌──────────────────────┐  │
+│  │ Collaboration      │  │  │  │ Agent Service        │  │
+│  │ Email Reminders    │  │  │  │ OpenRouter LLM       │  │
+│  └────────────────────┘  │  │  │ Gemini 2.0 Flash     │  │
+└────────────┬─────────────┘  │  └──────────┬───────────┘  │
+             │                │             ▼              │
+             │                │  ┌──────────────────────┐  │
+             │                │  │ MCP Server (10 Tools)│  │
+             │                │  │ • add_task           │  │
+             │                │  │ • list_tasks         │  │
+             │                │  │ • complete_task      │  │
+             │                │  │ • delete_task        │  │
+             │                │  │ • update_task        │  │
+             │                │  │ • assign_task        │  │
+             │                │  │ • share_task         │  │
+             │                │  │ • add_comment        │  │
+             │                │  │ • get_analytics      │  │
+             │                │  │ • get_suggestions    │  │
+             │                │  └──────────────────────┘  │
+             └────────────────┴───────────┬────────────────┘
+                                          │
+                                          ▼
+             ┌──────────────────────────────────────────────┐
+             │         Neon PostgreSQL (Serverless)         │
+             │              Shared Database                 │
+             │         us-east-2.aws.neon.tech              │
+             └──────────────────────────────────────────────┘
 ```
 
-### How to Run
-
-```bash
-# Terminal 1: Phase 2 Backend (port 8000)
-cd phase2/backend
-pip install -e .
-uvicorn src.main:app --reload --port 8000
-
-# Terminal 2: Phase 3 AI Backend (port 8001)
-cd phase3/backend
-pip install -e .
-uvicorn src.main:app --reload --port 8001
-
-# Terminal 3: Frontend
-cd phase2/frontend
-npm run dev
-```
-
-Access the chat at: http://localhost:3000/chat
-
-### Environment Variables
-
-**phase3/backend/.env:**
-```env
-DATABASE_URL=postgresql://user:pass@host/db
-OPEN_ROUTER_KEY=your_openrouter_api_key
-LLM_BASE_URL=https://openrouter.ai/api/v1
-LLM_MODEL=openai/gpt-4o-mini
-BETTER_AUTH_SECRET=your_secret_key
-CORS_ORIGINS=["http://localhost:3000"]
-```
 
 ---
 
@@ -345,43 +278,6 @@ Production-ready containerized deployment using Docker, Kubernetes, and Helm.
 | **Secrets** | Secure storage for API keys and sensitive data |
 | **Health Probes** | HTTP-based health checks with configurable delays |
 
-### Deployment Options
-
-#### Option 1: Docker Compose (Development)
-```bash
-cd phase4
-docker-compose up -d
-
-# Access:
-# Frontend: http://127.0.0.1:3000
-# Backend: http://127.0.0.1:8000/docs
-```
-
-#### Option 2: Kubernetes/Minikube (Production-like)
-```bash
-# 1. Start Minikube
-minikube start
-
-# 2. Load images
-minikube image load todo-backend:4.0.0
-minikube image load todo-frontend:4.0.0
-
-# 3. Deploy with Helm
-cd phase4/todo-app
-helm install todo-app .
-
-# 4. Wait for pods
-kubectl wait --for=condition=ready pod -l app.kubernetes.io/instance=todo-app --timeout=300s
-
-# 5. Port forwarding (for ChatKit)
-kubectl port-forward svc/todo-app-frontend 3000:3000 &
-kubectl port-forward svc/todo-app-backend 8000:8000 &
-
-# Access:
-# Frontend: http://127.0.0.1:3000
-# Chat: http://127.0.0.1:3000/chat
-# Backend: http://127.0.0.1:8000/docs
-```
 
 ### Architecture
 
@@ -413,222 +309,36 @@ kubectl port-forward svc/todo-app-backend 8000:8000 &
               - Backend: :8000
 ```
 
-### How to Build Images
 
-```bash
-# Backend
-cd phase4/backend
-docker build -t todo-backend:4.0.0 .
+## 🌐 Production Deployment
 
-# Frontend (with ChatKit domain key)
-cd phase4/frontend
-docker build \
-  --build-arg NEXT_PUBLIC_API_URL=http://127.0.0.1:8000 \
-  --build-arg NEXT_PUBLIC_OPENAI_DOMAIN_KEY=your_domain_key \
-  -t todo-frontend:4.0.0 .
-```
+The application is deployed and running on cloud platforms:
 
-### How to Run with Docker
-
-```bash
-# Backend
-docker run -d \
-  -p 8000:8000 \
-  -e DATABASE_URL="sqlite+aiosqlite:///./todo_app.db" \
-  -e OPEN_ROUTER_KEY="your_key" \
-  --name todo-backend \
-  todo-backend:4.0.0
-
-# Frontend
-docker run -d \
-  -p 3000:3000 \
-  --name todo-frontend \
-  todo-frontend:4.0.0
-```
-
-### Helm Chart Configuration
-
-**Key Values** (`phase4/todo-app/values.yaml`):
-
-```yaml
-backend:
-  enabled: true
-  replicaCount: 1
-  image:
-    repository: todo-backend
-    tag: "4.0.0"
-    pullPolicy: Never  # For local Minikube
-  service:
-    type: NodePort
-    port: 8000
-    nodePort: 30080
-
-frontend:
-  enabled: true
-  replicaCount: 1
-  image:
-    repository: todo-frontend
-    tag: "4.0.0"
-    pullPolicy: Never
-  service:
-    type: NodePort
-    port: 3000
-    nodePort: 30030
-```
-
-### Management Commands
-
-```bash
-# View deployment status
-kubectl get all -l app.kubernetes.io/instance=todo-app
-
-# View logs
-kubectl logs -l app.kubernetes.io/component=backend -f
-kubectl logs -l app.kubernetes.io/component=frontend -f
-
-# Scale deployments
-kubectl scale deployment todo-app-backend --replicas=3
-
-# Upgrade deployment
-helm upgrade todo-app .
-
-# Rollback
-helm rollback todo-app
-
-# Uninstall
-helm uninstall todo-app
-```
-
-### Documentation
-
-- **QUICK_START.md** - 5-command deployment guide
-- **DEPLOYMENT_GUIDE.md** - Comprehensive deployment instructions
-- **RUNNING_CONTAINERS.md** - Container management guide
-
----
-
-## Quick Start
-
-### Prerequisites
-
-- Python 3.13+
-- Node.js 18+
-- PostgreSQL / Neon account
-- OpenRouter API key (for AI features)
-
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/Tafzeel99/HACKATHON-TODO-APP.git
-cd HACKATHON-TODO-APP
-
-# Setup Phase 2 Backend
-cd phase2/backend
-pip install -e .
-cp .env.example .env
-# Edit .env with your database URL and secrets
-
-# Setup Phase 2 Frontend
-cd ../frontend
-npm install
-cp .env.example .env.local
-# Edit .env.local with API URLs
-
-# Setup Phase 3 Backend (AI)
-cd ../../phase3/backend
-pip install -e .
-cp .env.example .env
-# Edit .env with OpenRouter API key
-```
-
-### Running All Services
-
-```bash
-# Terminal 1: Phase 2 Backend
-cd phase2/backend && uvicorn src.main:app --reload --port 8000
-
-# Terminal 2: Phase 3 AI Backend
-cd phase3/backend && uvicorn src.main:app --reload --port 8001
-
-# Terminal 3: Frontend
-cd phase2/frontend && npm run dev
-```
-
----
-
-## Project Structure
+### Deployment Architecture
 
 ```
-HACKATHON-TODO-APP/
-├── phase1/                     # Console Application
-│   └── src/
-│       └── main.py
-│
-├── phase2/                     # Full-Stack Web Application
-│   ├── backend/
-│   │   ├── src/
-│   │   │   ├── api/           # REST API endpoints
-│   │   │   ├── models/        # SQLModel database models
-│   │   │   ├── schemas/       # Pydantic schemas
-│   │   │   ├── services/      # Business logic
-│   │   │   └── templates/     # Email templates
-│   │   └── alembic/           # Database migrations
-│   │
-│   └── frontend/
-│       └── src/
-│           ├── app/           # Next.js App Router pages
-│           ├── components/    # React components
-│           │   ├── chat/      # AI chat interface
-│           │   ├── tasks/     # Task management
-│           │   ├── projects/  # Project management
-│           │   ├── collaboration/  # Sharing & comments
-│           │   └── ui/        # Shadcn UI components
-│           ├── hooks/         # Custom React hooks
-│           └── types/         # TypeScript types
-│
-├── phase3/                     # AI Chatbot Backend
-│   └── backend/
-│       └── src/
-│           ├── api/           # Chat API endpoints
-│           ├── mcp/           # MCP tools server
-│           │   └── tools/     # 10 MCP tools
-│           ├── services/      # AI services
-│           │   ├── agent_service.py      # LLM integration
-│           │   ├── suggestions.py        # Smart suggestions
-│           │   ├── auto_categorizer.py   # Auto-categorization
-│           │   └── context_manager.py    # Conversation context
-│           └── models/        # Chat models
-│
-├── phase4/                     # Kubernetes Deployment
-│   ├── backend/               # Unified backend (Phase 2+3)
-│   │   ├── Dockerfile         # Backend container image
-│   │   └── src/               # Combined backend source
-│   ├── frontend/              # Next.js frontend
-│   │   ├── Dockerfile         # Frontend container image
-│   │   └── src/               # Frontend source
-│   └── todo-app/              # Helm chart
-│       ├── Chart.yaml         # Helm chart metadata
-│       ├── values.yaml        # Configuration values
-│       ├── templates/         # K8s manifests
-│       ├── DEPLOYMENT_GUIDE.md    # Full deployment guide
-│       └── QUICK_START.md         # Quick deployment steps
-│
-├── specs/                      # Specifications (SDD)
-│   ├── phase1/
-│   ├── phase2/
-│   ├── phase3/
-│   └── 001-ai-agent-enhancements/
-│
-├── history/                    # Documentation
-│   ├── adr/                   # Architecture Decision Records
-│   └── prompts/               # Prompt History Records
-│
-├── CLAUDE.md                   # AI assistant instructions
-└── README.md                   # This file
+┌─────────────────────────────────────────────────────────┐
+│                    Vercel (Frontend)                     │
+│              https://hackathon-todox.vercel.app          │
+│                     Next.js 16 + React                   │
+└─────────────────┬────────────────────┬──────────────────┘
+                  │                    │
+         JWT Auth │                    │ API Calls
+                  │                    │
+    ┌─────────────▼──────────┐  ┌─────▼──────────────────┐
+    │  Hugging Face Space    │  │  Hugging Face Space    │
+    │   Phase 2 Backend      │  │   Phase 3 AI Chatbot   │
+    │   (REST API)           │  │   (ChatKit + MCP)      │
+    │   Port: 7860           │  │   Port: 7860           │
+    └────────────┬───────────┘  └────────┬───────────────┘
+                 │                       │
+                 └───────────┬───────────┘
+                             │
+                    ┌────────▼─────────┐
+                    │ Neon PostgreSQL  │
+                    │  (Serverless)    │
+                    └──────────────────┘
 ```
-
----
 
 ## Tech Stack
 
@@ -655,9 +365,14 @@ HACKATHON-TODO-APP/
 - **SQLite** - Local development option
 
 ### AI/ML
-- **OpenRouter API** - Multi-model LLM access
-- **GPT-4o-mini** - Primary model for chat
-- **MCP Protocol** - Tool calling standard
+- **OpenRouter API** - Multi-model LLM gateway with 18+ free models
+- **Google Gemini 2.0 Flash** - Primary model for chat (1M tokens context, free)
+- **Alternative Free Models**:
+  - Meta Llama 3.3 70B (GPT-4 level performance)
+  - DeepSeek V3 (strong reasoning)
+  - Mistral Small 3.1 24B
+- **MCP Protocol** - Model Context Protocol for tool calling
+- **ChatKit** - OpenAI ChatKit for beautiful chat UI
 
 ### Container & Orchestration
 - **Docker** - Container runtime
@@ -679,6 +394,7 @@ When the backend is running, access the interactive API docs:
 - **Kubernetes (Port Forward)**: http://127.0.0.1:8000/docs
 
 ---
+
 
 ## Contributing
 
@@ -707,4 +423,3 @@ MIT License - See LICENSE file for details.
 
 ---
 
-**Built with AI-Native Development principles using Claude Code**
