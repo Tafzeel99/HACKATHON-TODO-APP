@@ -1,0 +1,62 @@
+{{- if .Values.recurringTaskService.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "todo-app.fullname" . }}-recurring
+  labels:
+    {{- include "todo-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: recurring
+spec:
+  replicas: {{ .Values.recurringTaskService.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "todo-app.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: recurring
+  template:
+    metadata:
+      annotations:
+        {{- if .Values.recurringTaskService.dapr.enabled }}
+        dapr.io/enabled: "true"
+        dapr.io/app-id: {{ .Values.recurringTaskService.dapr.appId | quote }}
+        dapr.io/app-port: {{ .Values.recurringTaskService.dapr.appPort | quote }}
+        dapr.io/enable-api-logging: "true"
+        {{- end }}
+      labels:
+        {{- include "todo-app.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: recurring
+    spec:
+      serviceAccountName: {{ include "todo-app.serviceAccountName" . }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+      - name: recurring
+        image: "{{ .Values.recurringTaskService.image.repository }}:{{ .Values.recurringTaskService.image.tag }}"
+        imagePullPolicy: {{ .Values.recurringTaskService.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.recurringTaskService.service.targetPort }}
+          protocol: TCP
+        env:
+        - name: LOG_LEVEL
+          value: {{ .Values.recurringTaskService.env.LOG_LEVEL | quote }}
+        - name: BACKEND_APP_ID
+          value: {{ .Values.recurringTaskService.env.BACKEND_APP_ID | quote }}
+        {{- with .Values.recurringTaskService.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.recurringTaskService.readinessProbe }}
+        readinessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.recurringTaskService.resources }}
+        resources:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.recurringTaskService.securityContext }}
+        securityContext:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+{{- end }}

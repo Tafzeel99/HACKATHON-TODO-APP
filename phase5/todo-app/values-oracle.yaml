@@ -1,0 +1,100 @@
+# Phase 5 Todo App - Oracle OKE Cloud Values Override
+# Usage: helm upgrade --install todo-app ./todo-app/ -f todo-app/values-oracle.yaml
+
+# Dapr
+dapr:
+  enabled: true
+
+# Backend - Oracle Cloud overrides
+backend:
+  image:
+    repository: <region>.ocir.io/<tenancy-namespace>/todo-backend
+    pullPolicy: Always
+    tag: "5.0.0"
+
+  service:
+    type: LoadBalancer  # Use LoadBalancer on cloud (not NodePort)
+    port: 8000
+    targetPort: 8000
+
+  dapr:
+    enabled: true
+    appId: "backend-service"
+    appPort: 8000
+
+  env:
+    BETTER_AUTH_SECRET: "hackathon-todo-app-secret-key-minimum-32-characters-long"
+    BETTER_AUTH_URL: "https://your-frontend-domain.com"
+    LLM_BASE_URL: "https://openrouter.ai/api/v1"
+    LLM_MODEL: "openai/gpt-4o-mini"
+    CORS_ORIGINS: '["https://your-frontend-domain.com"]'
+    RATE_LIMIT_REQUESTS: "100"
+    RATE_LIMIT_WINDOW_SECONDS: "60"
+    DAPR_ENABLED: "true"
+    DAPR_HTTP_PORT: "3500"
+
+  secrets:
+    DATABASE_URL: "postgresql://user:pass@host.neon.tech/db?sslmode=require"
+    OPEN_ROUTER_KEY: "sk-or-v1-your-real-key"
+
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+
+# Frontend - Oracle Cloud overrides
+frontend:
+  image:
+    repository: <region>.ocir.io/<tenancy-namespace>/todo-frontend
+    pullPolicy: Always
+    tag: "5.0.0"
+
+  service:
+    type: LoadBalancer
+    port: 3000
+    targetPort: 3000
+
+  dapr:
+    enabled: true
+    appId: "frontend-service"
+    appPort: 3000
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+# Notification Service - Oracle Cloud overrides
+notificationService:
+  image:
+    repository: <region>.ocir.io/<tenancy-namespace>/todo-notification
+    pullPolicy: Always
+    tag: "5.0.0"
+
+# Recurring Task Service - Oracle Cloud overrides
+recurringTaskService:
+  image:
+    repository: <region>.ocir.io/<tenancy-namespace>/todo-recurring
+    pullPolicy: Always
+    tag: "5.0.0"
+
+# Audit Service - Oracle Cloud overrides
+auditService:
+  image:
+    repository: <region>.ocir.io/<tenancy-namespace>/todo-audit
+    pullPolicy: Always
+    tag: "5.0.0"
+
+# Ingress (optional - enable for domain-based routing)
+ingress:
+  enabled: false
+
+# Image Pull Secrets for Oracle OCIR
+imagePullSecrets:
+  - name: ocir-secret

@@ -1,0 +1,44 @@
+{{- if .Values.dapr.enabled }}
+# Kafka Pub/Sub Component
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: kafka-pubsub
+spec:
+  type: pubsub.kafka
+  version: v1
+  metadata:
+    - name: brokers
+      value: "taskflow-kafka-kafka-bootstrap.kafka.svc.cluster.local:9092"
+    - name: consumerGroup
+      value: "todo-service"
+    - name: authType
+      value: "none"
+    - name: maxMessageBytes
+      value: "1048576"
+---
+# State Store Component (Neon PostgreSQL)
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: statestore
+spec:
+  type: state.postgresql
+  version: v1
+  metadata:
+    - name: connectionString
+      secretKeyRef:
+        name: {{ include "todo-app.fullname" . }}-backend-secret
+        key: DATABASE_URL
+  auth:
+    secretStore: kubernetes-secrets
+---
+# Kubernetes Secrets Store
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: kubernetes-secrets
+spec:
+  type: secretstores.kubernetes
+  version: v1
+{{- end }}

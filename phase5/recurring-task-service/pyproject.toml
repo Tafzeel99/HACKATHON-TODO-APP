@@ -1,0 +1,18 @@
+[project]
+name = "recurring-task-service"
+version = "5.0.0"
+description = "Recurring Task Service - subscribes to task.completed events and creates next occurrence for recurring tasks via Dapr"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.34.0",
+    "httpx>=0.28.0",
+    "pydantic>=2.10.0",
+    "pydantic-settings>=2.7.0",
+    "python-dateutil>=2.9.0",
+    "python-dotenv>=1.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
