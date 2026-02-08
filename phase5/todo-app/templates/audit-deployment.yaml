@@ -1,0 +1,62 @@
+{{- if .Values.auditService.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "todo-app.fullname" . }}-audit
+  labels:
+    {{- include "todo-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: audit
+spec:
+  replicas: {{ .Values.auditService.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "todo-app.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: audit
+  template:
+    metadata:
+      annotations:
+        {{- if .Values.auditService.dapr.enabled }}
+        dapr.io/enabled: "true"
+        dapr.io/app-id: {{ .Values.auditService.dapr.appId | quote }}
+        dapr.io/app-port: {{ .Values.auditService.dapr.appPort | quote }}
+        dapr.io/enable-api-logging: "true"
+        {{- end }}
+      labels:
+        {{- include "todo-app.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: audit
+    spec:
+      serviceAccountName: {{ include "todo-app.serviceAccountName" . }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+      - name: audit
+        image: "{{ .Values.auditService.image.repository }}:{{ .Values.auditService.image.tag }}"
+        imagePullPolicy: {{ .Values.auditService.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.auditService.service.targetPort }}
+          protocol: TCP
+        env:
+        - name: LOG_LEVEL
+          value: {{ .Values.auditService.env.LOG_LEVEL | quote }}
+        - name: BACKEND_APP_ID
+          value: {{ .Values.auditService.env.BACKEND_APP_ID | quote }}
+        {{- with .Values.auditService.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.auditService.readinessProbe }}
+        readinessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.auditService.resources }}
+        resources:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.auditService.securityContext }}
+        securityContext:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+{{- end }}
